@@ -1,8 +1,5 @@
 from paho.mqtt import client as mqtt_client
-import random
-import time
 import json
-#import Amberloop as al
 import mqttmessages as mm
 from const import (
     HOME_ASSISTANT_DISCOVERY_TOPIC,
@@ -73,17 +70,6 @@ def publishhastate_periods(client, amberdata):
         status = result[0]
         if status != 0:
             print(f"Failed to send message to topic {topic}")
-
-#def run():
-#    client = connect_mqtt()
-#    client.loop_start()
-#    discoveryha(client)
-    #amberdata = al.get_amber_data(access_token, site_id, 13, 5, 5)
-#    publishhastate_current(client, amberdata)
-#    publishhastate_periods(client, amberdata)
-    #publishstate(client)
-#    print("Hope this worked")
-#    client.loop_stop()
 
 
 #if __name__ == '__main__':
