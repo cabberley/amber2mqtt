@@ -29,7 +29,7 @@ home_assistant = True if config["integration"]["home_assistant"].lower() == "tru
 if log_5min_values:
     logs = dl.DataLog()
     logs.create_table_amber()
-    logs.conn.close() # .close_connection()
+    logs.conn.close()
 
 
 def amberResetEstimatePrice():
@@ -56,24 +56,15 @@ def amber5minPrice():
             logamber = dl.DataLog()
             logamber.log_amber_data(requestTime, responseTime, amberData)
             logamber.conn.close() # .close_connection()
-        #print("Request: ", requestTime )
-        ##print("Response: ", responseTime )
-        #print("amberTIme: ", amberData["current"]["general"].start_time)
-        #print("Price Estimate: ", amberData["current"]["general"].estimate)
-    #else:
-        #print("amberEstimatePrice already have it")
+
 
 if __name__ == '__main__':
-    #amberEstimatePrice = True
     # creating the BackgroundScheduler object
     scheduler = BackgroundScheduler()
     # setting the scheduled task
     client = a2m.connect_mqtt()
     client.loop_start()
     a2m.discoveryha(client)
-    #amberdata = al.get_amber_data(access_token, site_id, 13, 5, 5)
-    #publishstate(client)
-    #print("Hope this worked")
 
     scheduler.add_job(amberResetEstimatePrice, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=5)
     scheduler.add_job(amber5minPrice, 'cron', minute=amberPriceMinutes ,second=amberPriceSeconds)
