@@ -13,6 +13,17 @@ from const import (
     AMBER_5MIN_CURRENT_FEED_IN_ENTITY,
     AMBER_5MIN_CURRENT_AEMO_ENTITY,
     AMBER_5MIN_CURRENT_SPIKE_ENTITY,
+    AMBER_5MIN_CURRENT_PERIOD_TIME_ENTITY,
+    AMBER_5MIN_CURRENT_FEED_IN_DESCRIPTOR_ENTITY,\
+    AMBER_5MIN_CURRENT_GENERAL_DESCRIPTOR_ENTITY,
+    AEMO_STATE_TOPIC_CURRENT,
+    AEMO_STATE_TOPIC_PERIODS,
+    SENSOR_LIST_AEMO_CURRENT,
+    AEMO_5MIN_CURRENT_PRICE_NSW,
+    AEMO_5MIN_CURRENT_PRICE_QLD,
+    AEMO_5MIN_CURRENT_PRICE_SA,
+    AEMO_5MIN_CURRENT_PRICE_TAS,
+    AEMO_5MIN_CURRENT_PRICE_VIC,
 )
 
 def ha_discovery_message(): #entity_id):
@@ -45,6 +56,36 @@ def ha_discovery_message(): #entity_id):
             "value_template": "{{ value_json."+ sensor.lower().replace(" ", "_") +" }}",    
         }
     cmps[sensor]=sensor_dict
+    sensor = AMBER_5MIN_CURRENT_PERIOD_TIME_ENTITY
+    sensor_dict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": AMBER_STATE_TOPIC_CURRENT,
+            "p": "sensor",
+            "value_template": "{{ value_json."+ sensor.lower().replace(" ", "_") +" }}",    
+        }
+    cmps[sensor]=sensor_dict
+    sensor = AMBER_5MIN_CURRENT_FEED_IN_DESCRIPTOR_ENTITY
+    sensor_dict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": AMBER_STATE_TOPIC_CURRENT,
+            "p": "sensor",
+            "value_template": "{{ value_json."+ sensor.lower().replace(" ", "_") +" }}",    
+        }
+    cmps[sensor]=sensor_dict
+    sensor = AMBER_5MIN_CURRENT_GENERAL_DESCRIPTOR_ENTITY
+    sensor_dict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": AMBER_STATE_TOPIC_CURRENT,
+            "p": "sensor",
+            "value_template": "{{ value_json."+ sensor.lower().replace(" ", "_") +" }}",    
+        }
+    cmps[sensor]=sensor_dict
     discoveryMsg = {
         "device": AMBER_DEVICE,
         "o": AMBER_OBJECT,
@@ -52,11 +93,32 @@ def ha_discovery_message(): #entity_id):
     }
     return discoveryMsg
 
-#"json_attributes_template": "{{ value_json.attributes }}"
-#"payload_available": "online",
-#"payload_not_available": "offline",
-#            "availability_topic": (
-#                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(" ", "_")}/availability"),
+def ha_aemo_discovery_message():
+    cmps = {}
+    for sensor in SENSOR_LIST_AEMO_CURRENT:
+        if "Period" in sensor:
+            state_topic = AEMO_STATE_TOPIC_PERIODS
+        else:
+            state_topic = AEMO_STATE_TOPIC_CURRENT
+        sensor_dict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": state_topic,
+            "json_attributes_topic": (
+                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(" ", "_")}/attributes"),
+            "device_class":"monetary",
+            "unit_of_measurement":"$/kWh",
+            "p": "sensor",
+            "value_template": "{{ value_json."+ sensor.lower().replace(" ", "_") +" }}",    
+        }
+        cmps[sensor]=sensor_dict
+    discoveryMsg = {
+        "device": AMBER_DEVICE,
+        "o": AMBER_OBJECT,
+        "cmps": cmps,
+    }
+    return discoveryMsg
 
 def ha_state_message(amberdata):
     stateMsg = {
@@ -68,7 +130,13 @@ def ha_state_message(amberdata):
             AMBER_5MIN_CURRENT_AEMO_ENTITY.lower().replace(" ", "_") :
                 ut.format_cents_to_dollars(amberdata["current"]["general"].spot_per_kwh),
             AMBER_5MIN_CURRENT_SPIKE_ENTITY.lower().replace(" ", "_") :
-                amberdata["current"]["general"].spike_status #if amberdata["current"]["general"].spike_status != None else "False",
+                amberdata["current"]["general"].spike_status, #if amberdata["current"]["general"].spike_status != None else "False",
+            AMBER_5MIN_CURRENT_PERIOD_TIME_ENTITY.lower().replace(" ", "_") :
+                amberdata["current"]["general"].start_time.isoformat(),
+            AMBER_5MIN_CURRENT_GENERAL_DESCRIPTOR_ENTITY.lower().replace(" ", "_") :
+                amberdata["current"]["general"].descriptor,
+            AMBER_5MIN_CURRENT_FEED_IN_DESCRIPTOR_ENTITY.lower().replace(" ", "_") :
+                amberdata["current"]["feed_in"].descriptor,
         },
         "attributes": {
             "start_time": amberdata["current"]["general"].start_time.isoformat(),
@@ -76,6 +144,8 @@ def ha_state_message(amberdata):
             "nem_time": amberdata["current"]["general"].nem_time.isoformat(),
             "estimate": amberdata["current"]["general"].estimate,
             "duration": amberdata["current"]["general"].duration,
+            "descriptor": amberdata["current"]["general"].descriptor,
+            "type": amberdata["current"]["general"].type,
             "spot_per_kwh": 
                 ut.format_cents_to_dollars(amberdata["current"]["general"].spot_per_kwh),
             "renewables": amberdata["current"]["general"].renewables,
@@ -123,6 +193,8 @@ def ha_state_5minPeriods(amberdata):
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
             "duration": slot.duration,
+            "descriptor": slot.descriptor,
+            "type": slot.type,
             "spot_per_kwh": 
                 ut.format_cents_to_dollars(slot.spot_per_kwh),
             "renewables": slot.renewables,
@@ -140,6 +212,8 @@ def ha_state_5minPeriods(amberdata):
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
             "duration": slot.duration,
+            "descriptor": slot.descriptor,
+            "type": slot.type,
             "spot_per_kwh": 
                 ut.format_cents_to_dollars(slot.spot_per_kwh),
             "renewables": slot.renewables,
@@ -152,9 +226,9 @@ def ha_state_5minPeriods(amberdata):
         #if "advanced_price" in slot.keys():
         if ut.is_current(slot) and not slot.estimate or ut.is_forecast(slot):
             if slot.advanced_price != None:
-                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_low"] = slot.advanced_price.low
-                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_predicted"] = slot.advanced_price.predicted
-                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_high"] = slot.advanced_price.high
+                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_low"] = ut.format_cents_to_dollars(slot.advanced_price.low)
+                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_predicted"] = ut.format_cents_to_dollars(slot.advanced_price.predicted)
+                attributes[f"amber_5min_period_{x}_general_price"]["advanced_price_high"] = ut.format_cents_to_dollars(slot.advanced_price.high)
         x += 1
     x = 1
     for slot in slot_feedin:
@@ -165,6 +239,8 @@ def ha_state_5minPeriods(amberdata):
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
             "duration": slot.duration,
+            "descriptor": slot.descriptor,
+            "type": slot.type,
             "spot_per_kwh": 
                 ut.format_cents_to_dollars(slot.spot_per_kwh),
             "renewables": slot.renewables,
@@ -175,9 +251,61 @@ def ha_state_5minPeriods(amberdata):
             attributes[f"amber_5min_period_{x}_feed_in_price"]["estimate"] = slot.estimate
         if ut.is_current(slot) and not slot.estimate or ut.is_forecast(slot):
             if slot.advanced_price != None:
-                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_low"] = slot.advanced_price.low
-                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_predicted"] = slot.advanced_price.predicted
-                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_high"] = slot.advanced_price.high
+                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_low"] = ut.format_cents_to_dollars(slot.advanced_price.low)
+                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_predicted"] = ut.format_cents_to_dollars(slot.advanced_price.predicted)
+                attributes[f"amber_5min_period_{x}_feed_in_price"]["advanced_price_high"] = ut.format_cents_to_dollars(slot.advanced_price.high)
         x += 1
     stateMsg = {"state": data, "attributes": attributes}
+    return stateMsg
+
+def ha_aemo_state_attributes_add(regiondata):
+    attributes = {}
+    #attributes[region.lower().replace(" ", "_")] = {
+    attributes = {
+                "settlement_date": regiondata["SETTLEMENTDATE"],
+                #"settlement_date_time": datetime.strptime(regiondata["SETTLEMENTDATE"], "%Y-%m-%dT%H:%M:%S"),
+                "price_status": regiondata["PRICE_STATUS"],
+                "apc_flag": regiondata["APCFLAG"],
+                "market_suspended": regiondata["MARKETSUSPENDEDFLAG"],
+                "total_demand": regiondata["TOTALDEMAND"],
+                "net_interchange": regiondata["NETINTERCHANGE"],
+                "scheduled_generation": regiondata["SCHEDULEDGENERATION"],
+                "semi_scheduled_generation": regiondata["SEMISCHEDULEDGENERATION"],
+                "update_time": datetime.now().isoformat(),
+                #"interconnector_flows": None,
+            }
+    #interconnector_flows = {}
+    if regiondata["INTERCONNECTORFLOWS"] != None:
+        for connector in regiondata["INTERCONNECTORFLOWS"]:
+            attributes[F"interconnector_flows_{connector['name']}"] = {
+            #interconnector_flows[connector["name"]] = {
+                "name": connector["name"],
+                "value": connector["value"],
+                "export_limit": connector["exportlimit"],
+                "import_limit": connector["importlimit"],
+            }
+        #attributes["interconnector_flows"] = interconnector_flows
+    return attributes
+
+def ha_aemo_current_state_message(aemodata):
+    state = {}
+    attributes = {}
+    stateMsg = {}
+    for region in aemodata["ELEC_NEM_SUMMARY"]:
+        if region["REGIONID"] == "NSW1":
+            state[AEMO_5MIN_CURRENT_PRICE_NSW.lower().replace(" ", "_")] = round(region["PRICE"]/1000, 4)
+            attributes[AEMO_5MIN_CURRENT_PRICE_NSW.lower().replace(" ", "_")] = ha_aemo_state_attributes_add(region)
+        elif region["REGIONID"] == "QLD1":
+            state[AEMO_5MIN_CURRENT_PRICE_QLD.lower().replace(" ", "_")] = round(region["PRICE"]/1000, 4)
+            attributes[AEMO_5MIN_CURRENT_PRICE_QLD.lower().replace(" ", "_")] = ha_aemo_state_attributes_add(region)
+        elif region["REGIONID"] == "SA1":
+            state[AEMO_5MIN_CURRENT_PRICE_SA.lower().replace(" ", "_")] = round(region["PRICE"]/1000, 4)
+            attributes[AEMO_5MIN_CURRENT_PRICE_SA.lower().replace(" ", "_")] = ha_aemo_state_attributes_add(region)
+        elif region["REGIONID"] == "TAS1":
+            state[AEMO_5MIN_CURRENT_PRICE_TAS.lower().replace(" ", "_")] = round(region["PRICE"]/1000, 4)
+            attributes[AEMO_5MIN_CURRENT_PRICE_TAS.lower().replace(" ", "_")] = ha_aemo_state_attributes_add(region)
+        elif region["REGIONID"] == "VIC1":
+            state[AEMO_5MIN_CURRENT_PRICE_VIC.lower().replace(" ", "_")] = round(region["PRICE"]/1000, 4)
+            attributes[AEMO_5MIN_CURRENT_PRICE_VIC.lower().replace(" ", "_")] = ha_aemo_state_attributes_add(region)
+    stateMsg = {"state": state, "attributes": attributes}
     return stateMsg

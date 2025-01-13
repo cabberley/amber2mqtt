@@ -7,6 +7,14 @@ from const import (
     AMBER_STATE_TOPIC_PERIODS,
     AMBER_MQTT_PREFIX,
     SENSOR_LIST_CURRENT,
+    AEMO_STATE_TOPIC_CURRENT,
+    AEMO_STATE_TOPIC_PERIODS,
+    SENSOR_LIST_AEMO_CURRENT,
+    AEMO_5MIN_CURRENT_PRICE_NSW,
+    AEMO_5MIN_CURRENT_PRICE_QLD,
+    AEMO_5MIN_CURRENT_PRICE_SA,
+    AEMO_5MIN_CURRENT_PRICE_TAS,
+    AEMO_5MIN_CURRENT_PRICE_VIC
 )
 
 with open("./config/config.json", "r") as f:
@@ -35,6 +43,15 @@ def discoveryha(client):
     topic = HOME_ASSISTANT_DISCOVERY_TOPIC
     #for sensor in SENSOR_LIST:
     discoveryMsg = mm.ha_discovery_message() #sensor)
+    result = client.publish(topic, json.dumps(discoveryMsg), qos=0, retain=True)
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {topic}")
+        
+def discoveryhaAemo(client):
+    topic = HOME_ASSISTANT_DISCOVERY_TOPIC
+    #for sensor in SENSOR_LIST:
+    discoveryMsg = mm.ha_aemo_discovery_message() #sensor)
     result = client.publish(topic, json.dumps(discoveryMsg), qos=0, retain=True)
     status = result[0]
     if status != 0:
@@ -71,6 +88,22 @@ def publishhastate_periods(client, amberdata):
         if status != 0:
             print(f"Failed to send message to topic {topic}")
 
+def publishaemostate_current(client, aemodata):
+    messagecontent = mm.ha_aemo_current_state_message(aemodata)
+    #print(json.dumps(messagecontent["state"]))
+    result = client.publish(AEMO_STATE_TOPIC_CURRENT, json.dumps(messagecontent["state"]), qos=0, retain=True)
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_CURRENT}")
+    #discoveryMsg = mm.ha_discovery_message()
+    #print(json.dumps(messagecontent["attributes"]))
+    for attributemsg in messagecontent["attributes"]:
+        topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
+        #test = json.dumps(messagecontent["attributes"][attributemsg])
+        result = client.publish(topic, json.dumps(messagecontent["attributes"][attributemsg]), qos=0, retain=True)
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {topic}")
 
 #if __name__ == '__main__':
 #    run()
