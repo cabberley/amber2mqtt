@@ -25,11 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 #ENV TZ=australia\Brisbane 
 
-VOLUME /app/data #\
-  #/opt/amber/config
-
-ENTRYPOINT ["python", "app.py"]
-# Docker Labels for hass
+VOLUME /app/data
 LABEL \
     io.hass.name="Amber2MQTT" \
     io.hass.description="Amber2MQTT: Amber 5min price polling for Home Assistant" \
@@ -39,3 +35,8 @@ LABEL \
     org.opencontainers.image.authors="Chris Abberley <chris@abberley.com.au>" \
     org.opencontainers.image.source="https://github.com/cabberley/amber2mqtt" \
     org.opencontainers.image.description="Amber and AEMO solution to poll prices quickly from their source."
+  #/opt/amber/config
+
+ENTRYPOINT ["python", "app.py"]
+# Docker Labels for hass
+
