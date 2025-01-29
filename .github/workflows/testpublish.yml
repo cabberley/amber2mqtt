@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  GHCR_REPO: ghcr.io/gh-user/my-app
+  GHCR_REPO: ghcr.io/cabberley/amber2mqtt
 
 jobs:
   build:
