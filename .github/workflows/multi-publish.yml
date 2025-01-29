@@ -51,6 +51,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+        context: .
           platforms: linux/${{ matrix.platform.target_arch }}
           build-args: |
             TARGETARCH=${{ matrix.platform.target_arch }}
