@@ -1,4 +1,4 @@
-# armhf,amd64,armv7,aarch64
+# sarmhf,amd64,armv7,aarch64
 ARG TARGETARCH
 # armhf=raspbian, amd64,armv7,aarch64=debian
 ARG os_version=python
