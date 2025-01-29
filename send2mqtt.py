@@ -13,7 +13,7 @@ from const import (
     AEMO_STATE_TOPIC_CURRENT,
 )
 
-with open("./config/config.json", "r", encoding="utf-8") as f:
+with open("./data/options.json", "r", encoding="utf-8") as f:
     config = json.load(f)
 
 # amberSiteId = config["amber"]["site_id"]

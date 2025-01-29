@@ -4,15 +4,13 @@ import logging
 from datetime import datetime as dt
 import time as time
 from apscheduler.schedulers.background import BackgroundScheduler
-#from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import aemodata as aemo
 import amberdata as al
 import datalog as dl
-#import homeassistant as ha
 import send2mqtt as a2m
 
 
-with open("./config/config.json", "r") as f:
+with open("./data/options.json", "r") as f:
     config = json.load(f)
 
 LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
@@ -27,7 +25,6 @@ amberPriceMinutes = config["amber"]["amber5minPrice_minutes"]
 aemoPriceSeconds = config["aemo"]["aemo5minPrice_seconds"]
 aemoPriceMinutes = config["aemo"]["aemo5minPrice_minutes"]
 amber2mqtt = True if config["integration"]["amber2mqtt"].lower() == "true" else False
-home_assistant = True if config["integration"]["home_assistant"].lower() == "true" else False
 mqttDebug = True if config["mqtt"]["debug"].lower() == "true" else False
 
 amberEstimatePrice = True
@@ -54,18 +51,15 @@ def amber5minPrice():
     """Get the current prices from the Amber API every 5 minutes"""
     global amberEstimatePrice
     if amberEstimatePrice:
-        #print("amberEstimatePrice is: ", amberEstimatePrice)
         requestTime = dt.now()
         amberData = al.getAmberData(amberApiToken, amberSiteId,  13,5,5)
         responseTime = dt.now()
         amberEstimatePrice = amberData["current"]["general"].estimate
         if not amberEstimatePrice:
+            print("Amber Current Period data confirmed")
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
                 a2m.publishAmberStatePeriods(client, amberData)
-            #if home_assistant:
-            #    ha.post5MinPrice(amberData)
-            #    ha.post5minPeriods(amberData)
         if LOG_5MIN_VALUES:
             logamber = dl.DataLog()
             logamber.log_amber_data(requestTime, responseTime, amberData)
@@ -75,31 +69,20 @@ def amber5minPrice():
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
     global aemoPriceFirm
-    #requestTime = dt.now()
     if not aemoPriceFirm:
-        #codeLogger.error("AEMO 5Min Check", "test", extra=dt.now().isoformat())
         aemoData = aemo.getAemoCurrentData()
-        #responseTime = dt.now()
         aemoPriceFirm = aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0])
         if aemoPriceFirm:
             if amber2mqtt:
                 a2m.publishAemoStateCurrent(client, aemoData)
-    #if LOG_5MIN_VALUES:
-    #    logamber = dl.DataLog()
-    #    logamber.log_amber_data(requestTime, responseTime, amberData)
-    #    logamber.conn.close() # .close_connection()
 
-#logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
-#apScheduleLogger = logging.getLogger('apscheduler').setLevel(logging.ERROR)
-#mqttLogger = logging.getLogger('paho').setLevel(logging.DEBUG)
-#codeLogger = logging.getLogger().setLevel(logging.INFO)
 
 if __name__ == '__main__':
     # creating the BackgroundScheduler object
     logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
     apScheduleLogger = logging.getLogger('apscheduler').setLevel(logging.ERROR)
-    mqttLogger = logging.getLogger('paho').setLevel(logging.DEBUG)
-    #codeLogger = logging.getLogger('code').setLevel(logging.INFO)
+    if mqttDebug:
+        mqttLogger = logging.getLogger('paho').setLevel(logging.DEBUG)
     scheduler = BackgroundScheduler()
     # setting the scheduled task
     client = a2m.mqttConnectBroker()

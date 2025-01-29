@@ -1,11 +1,9 @@
 import json
 import sqlite3
-#import amberelectric
-#from amberelectric.rest import ApiException
 import utils as ut
 
 
-with open("./config/config.json", "r") as f:
+with open("./data/options.json", "r") as f:
     config = json.load(f)
 
 class DataLog:
