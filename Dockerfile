@@ -1,4 +1,15 @@
-FROM python:3.13.1-alpine3.20
+# armhf,amd64,armv7,aarch64
+ARG TARGETARCH
+# armhf=raspbian, amd64,armv7,aarch64=debian
+ARG os_version=python
+
+FROM ghcr.io/home-assistant/$TARGETARCH-base-$os_version:latest AS base
+
+# check if TARGETARCH was passed by build-arg
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH:?}
+
+# FROM python:3.13.1-alpine3.20
 
 WORKDIR /opt/amber
 
