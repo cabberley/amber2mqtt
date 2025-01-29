@@ -26,7 +26,6 @@ jobs:
             { target_arch: amd64, os_version: alpine },
             { target_arch: armv7, os_version: alpine },
             { target_arch: armhf, os_version: raspbian },
-            { target_arch: aarch64, os_version: alpine },
           ]
     steps:
       # Pull git repo and build each architecture image separately (with QEMU and Buildx)
@@ -116,8 +115,7 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}@sha256:%s ' *)
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")'
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ steps.meta.outputs.version }}
