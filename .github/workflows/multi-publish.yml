@@ -3,7 +3,6 @@ name: Multi-Publish-hassio
 on:
   release:
     types: [published]
-  push:
 
 env:
   GHCR_REPO: ghcr.io/cabberley/amber2mqtt
