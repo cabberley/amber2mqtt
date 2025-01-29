@@ -36,6 +36,6 @@ LABEL \
     io.hass.version=${BUILD_VERSION} \
     io.hass.type="addon" \
     io.hass.arch="aarch64|amd64|armhf|armv7" \
-    org.opencontainers.image.authors="Chris Abberley <chris@abberley.com.au>"
+    org.opencontainers.image.authors="Chris Abberley <chris@abberley.com.au>" \
     org.opencontainers.image.source="https://github.com/cabberley/amber2mqtt" \
     org.opencontainers.image.description="Amber and AEMO solution to poll prices quickly from their source."
