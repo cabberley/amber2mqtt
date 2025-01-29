@@ -1,7 +1,8 @@
 name: ci
 
 on:
-  push:
+  release:
+    types: [published]
 
 env:
   GHCR_REPO: ghcr.io/cabberley/amber2mqtt
@@ -15,7 +16,7 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
-          - linux/armhf
+          - raspbian/armhf
           - linux/aarch64
           - linux/arm/v7
     steps:
