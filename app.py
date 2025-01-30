@@ -19,7 +19,7 @@ else:
 
 #LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
 #LOG_5MIN_VALUES = True if config["Log_database"]["log_amber_5min_current_values"].lower() == "true" else False
-#LOG_FORMAT = '%(asctime)s : %(message)s'
+LOG_FORMAT = '%(asctime)s : %(message)s'
 
 amberSiteId = config["amber"]["site_id"]
 amberApiToken   = config["amber"]["access_token"]
