@@ -2,7 +2,6 @@
 import json
 import logging
 import os
-import subprocess
 from datetime import datetime as dt
 import time as time
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -81,13 +80,6 @@ def aemo5MinCurrentPrice():
 
 if __name__ == '__main__':
     # creating the BackgroundScheduler object
-    mqtt_host = subprocess.run('bashio::services mqtt "host"', shell=True, capture_output=True, text=True)
-    mqtt_port = subprocess.run('bashio::services mqtt "port"', shell=True, capture_output=True, text=True)
-    mqtt_user = subprocess.run('bashio::services mqtt "username"', shell=True, capture_output=True, text=True)
-    mqtt_password = subprocess.run('bashio::services mqtt "password"', shell=True, capture_output=True, text=True)
-    print(f"MQTT Host: {mqtt_host.stdout.strip()}")
-    print(f"MQTT Host2: {mqtt_host}")
-    
     logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
     apScheduleLogger = logging.getLogger('apscheduler').setLevel(logging.ERROR)
     if mqttDebug:
