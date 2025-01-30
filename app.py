@@ -1,6 +1,7 @@
 """ main code to run the app and set the schedules for the 5 minute price updates from Amber and AEMO"""
 import json
 import logging
+import os
 from datetime import datetime as dt
 import time as time
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -10,8 +11,12 @@ import datalog as dl
 import send2mqtt as a2m
 
 
-with open("./data/options.json", "r") as f:
-    config = json.load(f)
+if os.path.isfile("/data/options.json"):
+    with open("/data/options.json", "r") as f:
+        config = json.load(f)
+else: 
+    with open("./data/options.json", "r") as f:
+        config = json.load(f)
 
 LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
 LOG_5MIN_VALUES = True if config["Log_database"]["log_amber_5min_current_values"].lower() == "true" else False
