@@ -1,6 +1,7 @@
 """MQTT functions for Subscribing and publishing to MQTT"""
 
 import json
+import os
 from paho.mqtt import client as mqtt_client
 import mqttmessages as mm
 from const import (
