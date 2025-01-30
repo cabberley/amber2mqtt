@@ -1,10 +1,15 @@
 import json
+import os
 import sqlite3
 import utils as ut
 
 
-with open("./data/options.json", "r") as f:
-    config = json.load(f)
+if os.path.isfile("/data/options.json"):
+    with open("/data/options.json", "r") as f:
+        config = json.load(f)
+else: 
+    with open("./data/options.json", "r") as f:
+        config = json.load(f)
 
 class DataLog:
     def __init__(self):
