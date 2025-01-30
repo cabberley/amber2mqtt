@@ -13,7 +13,11 @@ On your Docker Host:
 
 - create a config directory for your container, i.e. "/configs/amber2mqtt"
 - Create a "data" directory under that config directory
-- Copy the options.json file from this repository and edit it with your Amber and MQTT Broker details. 
+- Copy the options.json file from this repository and edit it with your Amber and MQTT Broker details.
+- Optionally if your MQTT Broker requires a username and password in the mqtt section add a key value pair for:
+   - username
+   - password
+  
 
 Create a new docker container and pull the image.
 - make sure to map the volume /data to your config folder storing the options.json file
