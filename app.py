@@ -7,7 +7,7 @@ import time as time
 from apscheduler.schedulers.background import BackgroundScheduler
 import aemodata as aemo
 import amberdata as al
-import datalog as dl
+#import datalog as dl
 import send2mqtt as a2m
 
 if os.path.isfile("/data/options.json"):
@@ -17,9 +17,9 @@ else:
     with open("./data/options.json", "r") as f:
         config = json.load(f)
 
-LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
-LOG_5MIN_VALUES = True if config["Log_database"]["log_amber_5min_current_values"].lower() == "true" else False
-LOG_FORMAT = '%(asctime)s : %(message)s'
+#LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
+#LOG_5MIN_VALUES = True if config["Log_database"]["log_amber_5min_current_values"].lower() == "true" else False
+#LOG_FORMAT = '%(asctime)s : %(message)s'
 
 amberSiteId = config["amber"]["site_id"]
 amberApiToken   = config["amber"]["access_token"]
@@ -33,10 +33,10 @@ mqttDebug = True if config["mqtt"]["debug"].lower() == "true" else False
 amberEstimatePrice = True
 aemoPriceFirm = False
 
-if LOG_5MIN_VALUES:
-    logs = dl.DataLog()
-    logs.create_table_amber()
-    logs.conn.close()
+#if LOG_5MIN_VALUES:
+#    logs = dl.DataLog()
+#    logs.create_table_amber()
+#    logs.conn.close()
 
 def aemoResetPriceFirm():
     """Reset the AEMO Price Firm to False"""
@@ -63,10 +63,10 @@ def amber5minPrice():
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
                 a2m.publishAmberStatePeriods(client, amberData)
-        if LOG_5MIN_VALUES:
-            logamber = dl.DataLog()
-            logamber.log_amber_data(requestTime, responseTime, amberData)
-            logamber.conn.close() # .close_connection()
+       # if LOG_5MIN_VALUES:
+       #     logamber = dl.DataLog()
+       #     logamber.log_amber_data(requestTime, responseTime, amberData)
+       #     logamber.conn.close() # .close_connection()
 
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
