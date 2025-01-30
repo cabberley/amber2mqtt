@@ -16,6 +16,7 @@ On your Docker Host:
 - Copy the options.json file from this repository and edit it with your Amber and MQTT Broker details. 
 
 Create a new docker container and pull the image.
+- make sure to map the volume /data to your config folder storing the options.json file
 
 docker pull ghcr.io/cabberley/amber2mqtt:latest
 
