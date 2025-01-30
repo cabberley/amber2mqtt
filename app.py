@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import subprocess
 from datetime import datetime as dt
 import time as time
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -9,7 +10,6 @@ import aemodata as aemo
 import amberdata as al
 import datalog as dl
 import send2mqtt as a2m
-
 
 if os.path.isfile("/data/options.json"):
     with open("/data/options.json", "r") as f:
@@ -21,7 +21,6 @@ else:
 LOG_5MIN_FORECASTS = True if config["Log_database"]["log_amber_5min_forecasts"].lower() == "true" else False
 LOG_5MIN_VALUES = True if config["Log_database"]["log_amber_5min_current_values"].lower() == "true" else False
 LOG_FORMAT = '%(asctime)s : %(message)s'
-
 
 amberSiteId = config["amber"]["site_id"]
 amberApiToken   = config["amber"]["access_token"]
@@ -70,7 +69,6 @@ def amber5minPrice():
             logamber.log_amber_data(requestTime, responseTime, amberData)
             logamber.conn.close() # .close_connection()
 
-
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
     global aemoPriceFirm
@@ -81,9 +79,15 @@ def aemo5MinCurrentPrice():
             if amber2mqtt:
                 a2m.publishAemoStateCurrent(client, aemoData)
 
-
 if __name__ == '__main__':
     # creating the BackgroundScheduler object
+    mqtt_host = subprocess.run('bashio::services mqtt "host"', shell=True, capture_output=True, text=True)
+    mqtt_port = subprocess.run('bashio::services mqtt "port"', shell=True, capture_output=True, text=True)
+    mqtt_user = subprocess.run('bashio::services mqtt "username"', shell=True, capture_output=True, text=True)
+    mqtt_password = subprocess.run('bashio::services mqtt "password"', shell=True, capture_output=True, text=True)
+    print(f"MQTT Host: {mqtt_host.stdout.strip()}")
+    print(f"MQTT Host2: {mqtt_host}")
+    
     logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
     apScheduleLogger = logging.getLogger('apscheduler').setLevel(logging.ERROR)
     if mqttDebug:
@@ -91,19 +95,22 @@ if __name__ == '__main__':
     scheduler = BackgroundScheduler()
     # setting the scheduled task
     client = a2m.mqttConnectBroker()
-    
+
     if mqttDebug:
         client.enable_logger(mqttLogger)
     client.loop_start()
     client.subscribe("homeassistant/status")
     a2m.PublishDiscoveryAmberEntities(client)
     a2m.PublishDiscoveryAemoEntities(client)
-    
 
-    scheduler.add_job(amberResetEstimatePrice, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=5)
-    scheduler.add_job(aemoResetPriceFirm, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=2)
-    scheduler.add_job(amber5minPrice, 'cron', minute=amberPriceMinutes ,second=amberPriceSeconds)
-    scheduler.add_job(aemo5MinCurrentPrice, 'cron', minute=aemoPriceMinutes ,second=aemoPriceSeconds)
+    scheduler.add_job(
+        amberResetEstimatePrice, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=5)
+    scheduler.add_job(
+        aemoResetPriceFirm, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=2)
+    scheduler.add_job(
+        amber5minPrice, 'cron', minute=amberPriceMinutes ,second=amberPriceSeconds)
+    scheduler.add_job(
+        aemo5MinCurrentPrice, 'cron', minute=aemoPriceMinutes ,second=aemoPriceSeconds)
     # starting the scheduled task using the scheduler object
     scheduler.start()
     try:
