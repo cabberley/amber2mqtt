@@ -13,8 +13,12 @@ from const import (
     AEMO_STATE_TOPIC_CURRENT,
 )
 
-with open("./data/options.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+if os.path.isfile("/data/options.json"):
+    with open("/data/options.json", "r") as f:
+        config = json.load(f)
+else: 
+    with open("./data/options.json", "r") as f:
+        config = json.load(f)
 
 # amberSiteId = config["amber"]["site_id"]
 username = None
