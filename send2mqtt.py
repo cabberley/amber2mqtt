@@ -1,7 +1,6 @@
 """MQTT functions for Subscribing and publishing to MQTT"""
 
 import json
-import os
 from paho.mqtt import client as mqtt_client
 import mqttmessages as mm
 from const import (
@@ -14,19 +13,20 @@ from const import (
     AEMO_STATE_TOPIC_CURRENT,
 )
 
-if os.path.isfile("/data/options.json"):
-    with open("/data/options.json", "r") as f:
-        config = json.load(f)
-else: 
-    with open("./data/options.json", "r") as f:
-        config = json.load(f)
+with open("./data/options.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
 
 # amberSiteId = config["amber"]["site_id"]
-
+username = None
+password = None
 broker = config["mqtt"]["broker"]
 port = config["mqtt"]["port"]
 client_id = config["mqtt"]["client_id"]
-
+for key in config["mqtt"]:
+    if key == "username":
+        username = config["mqtt"]["username"]
+    if key == "password":
+        password = config["mqtt"]["password"]
 
 def mqttConnectBroker():
     """Connect to the MQTT Broker"""
@@ -56,6 +56,8 @@ def mqttConnectBroker():
         #    client.unsubscribe("$SYS/#")
 
     client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2)
+    if username not in (None, ""):
+        client.username_pw_set(username, password)
     # client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.on_subscribe = on_subscribe
