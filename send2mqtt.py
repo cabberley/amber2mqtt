@@ -10,6 +10,9 @@ from const import (
     AEMO_DISCOVERY_TOPIC,
     AMBER_STATE_TOPIC_CURRENT,
     AMBER_STATE_TOPIC_PERIODS,
+    AMBER_STATE_TOPIC_5MIN_FORECASTS,
+    AMBER_STATE_TOPIC_30MIN_FORECASTS,
+    AMBER_STATE_TOPIC_USER_FORECASTS,
     AMBER_MQTT_PREFIX,
     SENSOR_LIST_CURRENT,
     AEMO_STATE_TOPIC_CURRENT,
@@ -82,6 +85,34 @@ def PublishDiscoveryAmberEntities(client):
     if status != 0:
         print(f"Failed to send message to topic {AMBER_DISCOVERY_TOPIC}")
 
+def PublishDiscoveryAmberForecastEntities(client,forecast5,forecast30,forecastUser):
+    """Publish the Amber Entities to Home Assistant"""
+    #topic = HOME_ASSISTANT_DISCOVERY_TOPIC
+    # for sensor in SENSOR_LIST:
+    if forecast5:
+        discoveryMsg = mm.amberForecast5minDiscoveryMessage()  # sensor)
+        result = client.publish(
+            AMBER_FORECAST_DISCOVERY_TOPIC,
+            json.dumps(discoveryMsg), qos=0, retain=True)
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {AMBER_FORECAST_DISCOVERY_TOPIC}")
+    if forecast30:
+        discoveryMsg = mm.amberForecast30minDiscoveryMessage()
+        result = client.publish(
+            AMBER_FORECAST_DISCOVERY_TOPIC,
+            json.dumps(discoveryMsg), qos=0, retain=True)
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {AMBER_FORECAST_DISCOVERY_TOPIC}")
+    if forecastUser:
+        discoveryMsg = mm.amberForecastUserDiscoveryMessage()
+        result = client.publish(
+            AMBER_FORECAST_DISCOVERY_TOPIC,
+            json.dumps(discoveryMsg), qos=0, retain=True)
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {AMBER_FORECAST_DISCOVERY_TOPIC}")
 
 def PublishDiscoveryAemoEntities(client):
     """Publish the AEMO Entities to Home Assistant"""
@@ -145,6 +176,83 @@ def publishAmberStatePeriods(client, amberdata):
         if status != 0:
             print(f"Failed to send message to topic {topic}")
 
+def publishAmberState5MinForecasts(client, amberdata):
+    """Publish the Amber state to MQTT for the 12 periods"""
+    messageContent = mm.amberState5MinForecasts(amberdata)
+    # print(json.dumps(messageContent["state"]))
+    result = client.publish(
+        AMBER_STATE_TOPIC_5MIN_FORECASTS,
+        json.dumps(messageContent["state"]),
+        qos=0,
+        retain=True,
+    )
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_FORECASTS}")
+    for attributemsg in messageContent["attributes"]:
+        topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
+        # test = json.dumps(messageContent["attributes"][attributemsg])
+        result = client.publish(
+            topic,
+            json.dumps(messageContent["attributes"][attributemsg]),
+            qos=0,
+            retain=True,
+        )
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {topic}")
+            
+def publishAmberState30MinForecasts(client, amberdata):
+    """Publish the Amber state to MQTT for the 12 periods"""
+    messageContent = mm.amberState30MinForecasts(amberdata)
+    # print(json.dumps(messageContent["state"]))
+    result = client.publish(
+        AMBER_STATE_TOPIC_30MIN_FORECASTS,
+        json.dumps(messageContent["state"]),
+        qos=0,
+        retain=True,
+    )
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_30MIN_FORECASTS}")
+    for attributemsg in messageContent["attributes"]:
+        topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
+        # test = json.dumps(messageContent["attributes"][attributemsg])
+        result = client.publish(
+            topic,
+            json.dumps(messageContent["attributes"][attributemsg]),
+            qos=0,
+            retain=True,
+        )
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {topic}")
+            
+def publishAmberStateUserForecasts(client, amberdata):
+    """Publish the Amber state to MQTT for the 12 periods"""
+    messageContent = mm.amberStateUserForecasts(amberdata)
+    # print(json.dumps(messageContent["state"]))
+    result = client.publish(
+        AMBER_STATE_TOPIC_USER_FORECASTS,
+        json.dumps(messageContent["state"]),
+        qos=0,
+        retain=True,
+    )
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_USER_FORECASTS}")
+    for attributemsg in messageContent["attributes"]:
+        topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
+        # test = json.dumps(messageContent["attributes"][attributemsg])
+        result = client.publish(
+            topic,
+            json.dumps(messageContent["attributes"][attributemsg]),
+            qos=0,
+            retain=True,
+        )
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {topic}")
 
 def publishAemoStateCurrent(client, aemoData):
     """Publish the AEMO state to MQTT"""

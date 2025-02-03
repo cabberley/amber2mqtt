@@ -30,6 +30,17 @@ aemoPriceMinutes = config["aemo"]["aemo5minPrice_minutes"]
 amber2mqtt = True if config["integration"]["amber2mqtt"].lower() == "true" else False
 mqttDebug = True if config["mqtt"]["debug"].lower() == "true" else False
 
+amber5minForecast = False
+amber30minForecast = False
+amberUserForecast = False
+for key in config["amber"]:
+    if key == "forecast5min":
+        amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
+    if key == "forecast30min":
+        amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
+    if key == "forecastUser":
+        amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
+
 amberEstimatePrice = True
 aemoPriceFirm = False
 
@@ -63,6 +74,15 @@ def amber5minPrice():
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
                 a2m.publishAmberStatePeriods(client, amberData)
+            if amber5minForecast:
+                amberData = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
+                a2m.publishAmberState5MinForecasts(client, amberData)
+            if amber30minForecast:
+                amberData = al.getAmberData(amberApiToken, amberSiteId,50,0,30)
+                a2m.publishAmberState30MinForecasts(client, amberData)
+            if amberUserForecast:
+                amberData = al.getAmberData(amberApiToken, amberSiteId,50,0,30)
+                a2m.publishAmberStateUserForecasts(client, amberData)
        # if LOG_5MIN_VALUES:
        #     logamber = dl.DataLog()
        #     logamber.log_amber_data(requestTime, responseTime, amberData)
@@ -94,7 +114,8 @@ if __name__ == '__main__':
     client.subscribe("homeassistant/status")
     a2m.PublishDiscoveryAmberEntities(client)
     a2m.PublishDiscoveryAemoEntities(client)
-
+    a2m.PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast)
+    
     scheduler.add_job(
         amberResetEstimatePrice, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=5)
     scheduler.add_job(
