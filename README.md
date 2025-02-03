@@ -32,6 +32,15 @@ In the default config for example the Amber Site will be polled:
  - When the Minute equals "0-1,5-6,10-11,15-16,20-21,25-26,30-31,35-36,40-41,45-46,50-51,55-56"
  - When the code gets a confirmed price for the current 5 minute interval it will then stop and not continue until the next 5 minute interval starts.
 
+Updating 5min, 30min and Billing interval forecasts
+New option to add to your options.json to followup the inital Amber data update and collect immediately the 5/30/user billing forecast data.
+To enable this new feature add the folowing keys in the AMber section of your options.json file, if they have not been added the container will assume False and not create or collect the forecast data:
+   - "forecast5min": "True"
+   - "forecast30min": "True"
+   - "forecastUser": "True"
+
+Make sure you include "," at the end of the correct lines to align with JSON file format!!
+
 Amber limits you currently to 50 requests per 5 minutes and if you exceed that you will be blocked until the next 5 minute period starts. So also take into considderation what other apps you have that are also hitting the Amber website as you will quickly run out of calls if there are delays in the price being published.
 
 The AEMO minutes and seconds work the same way.
