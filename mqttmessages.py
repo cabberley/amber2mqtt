@@ -5,11 +5,17 @@ from tzlocal import get_localzone
 
 from const import (
     SENSOR_LIST,
+    SENSOR_FORECAST_5MIN_LIST,
+    SENSOR_FORECAST_30MIN_LIST,
+    SENSOR_FORECAST_USER_LIST,
     AMBER_DEVICE,
     AMBER_OBJECT,
     AMBER_MQTT_PREFIX,
     AMBER_STATE_TOPIC_CURRENT,
     AMBER_STATE_TOPIC_PERIODS,
+    AMBER_STATE_TOPIC_5MIN_FORECASTS,
+    AMBER_STATE_TOPIC_30MIN_FORECASTS,
+    AMBER_STATE_TOPIC_USER_FORECASTS,
     AMBER_5MIN_CURRENT_GENERAL_ENTITY,
     AMBER_5MIN_CURRENT_FEED_IN_ENTITY,
     AMBER_5MIN_CURRENT_AEMO_ENTITY,
@@ -20,6 +26,8 @@ from const import (
     AMBER_5MIN_CURRENT_GENERAL_DESCRIPTOR_ENTITY,
     AEMO_DEVICE,
     AEMO_OBJECT,
+    AMBER_FORECAST_DEVICE,
+    AMBER_FORECAST_OBJECT,
     AEMO_STATE_TOPIC_CURRENT,
     AEMO_STATE_TOPIC_PERIODS,
     SENSOR_LIST_AEMO_CURRENT,
@@ -114,6 +122,89 @@ def amberDiscoveryMessage():
     }
     return discoveryMsg
 
+def amberForecast5minDiscoveryMessage():
+    """Create the Amber discovery message for the 5 minute forecast"""
+    cmps = {}
+    for sensor in SENSOR_FORECAST_5MIN_LIST:
+        state_topic = AMBER_STATE_TOPIC_5MIN_FORECASTS
+        sensorDict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": state_topic,
+            "json_attributes_topic": (
+                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
+            ),
+            "device_class": "monetary",
+            "unit_of_measurement": "$/kWh",
+            "p": "sensor",
+            "value_template": "{{ value_json."
+            + sensor.lower().replace(" ", "_")
+            + " }}",
+        }
+        cmps[sensor] = sensorDict
+    discoveryMsg = {
+        "device": AMBER_FORECAST_DEVICE,
+        "o": AMBER_FORECAST_OBJECT,
+        "cmps": cmps,
+    }
+    return discoveryMsg
+
+def amberForecastUserDiscoveryMessage():
+    """Create the Amber discovery message for the user forecast"""
+    cmps = {}
+    for sensor in SENSOR_FORECAST_USER_LIST:
+        state_topic = AMBER_STATE_TOPIC_USER_FORECASTS
+        sensorDict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": state_topic,
+            "json_attributes_topic": (
+                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
+            ),
+            "device_class": "monetary",
+            "unit_of_measurement": "$/kWh",
+            "p": "sensor",
+            "value_template": "{{ value_json."
+            + sensor.lower().replace(" ", "_")
+            + " }}",
+        }
+        cmps[sensor] = sensorDict
+    discoveryMsg = {
+        "device": AMBER_FORECAST_DEVICE,
+        "o": AMBER_FORECAST_OBJECT,
+        "cmps": cmps,
+    }
+    return discoveryMsg
+
+def amberForecast30minDiscoveryMessage():
+    """Create the Amber discovery message for the 30 minute forecast"""
+    cmps = {}
+    for sensor in SENSOR_FORECAST_30MIN_LIST:
+        state_topic = AMBER_STATE_TOPIC_30MIN_FORECASTS
+        sensorDict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": state_topic,
+            "json_attributes_topic": (
+                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
+            ),
+            "device_class": "monetary",
+            "unit_of_measurement": "$/kWh",
+            "p": "sensor",
+            "value_template": "{{ value_json."
+            + sensor.lower().replace(" ", "_")
+            + " }}",
+        }
+        cmps[sensor] = sensorDict
+    discoveryMsg = {
+        "device": AMBER_FORECAST_DEVICE,
+        "o": AMBER_FORECAST_OBJECT,
+        "cmps": cmps,
+    }
+    return discoveryMsg
 
 def aemoDiscoveryMessage():
     """Create the AEMO discovery message"""
