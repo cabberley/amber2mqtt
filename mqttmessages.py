@@ -189,8 +189,6 @@ def amberStateMessage(amberdata):
         "attributes": {
             "start_time": amberdata["current"]["general"].start_time.isoformat(),
             "start_time_time": amberdata["current"]["general"].start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            #"start_time_time2": str(amberdata["current"]["general"].start_time.time()),
-            #"start_time_time3": amberdata["current"]["general"].start_time.time().strftime('%H:%M:%S'),
             "end_time": amberdata["current"]["general"].end_time.isoformat(),
             "nem_time": amberdata["current"]["general"].nem_time.isoformat(),
             "estimate": amberdata["current"]["general"].estimate,
@@ -244,7 +242,7 @@ def amberState5MinPeriods(amberdata):
         )
         attributes[f"amber_5min_period_{x}_general_price"] = {
             "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.time().isoformat(),
+            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
             "end_time": slot.end_time.isoformat(),
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
@@ -261,7 +259,7 @@ def amberState5MinPeriods(amberdata):
         )
         attributes[f"amber_5min_period_{x}_aemo_spot_price"] = {
             "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.time().isoformat(),
+            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
             "end_time": slot.end_time.isoformat(),
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
@@ -300,7 +298,7 @@ def amberState5MinPeriods(amberdata):
         )
         attributes[f"amber_5min_period_{x}_feed_in_price"] = {
             "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.time().isoformat(),
+            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
             "end_time": slot.end_time.isoformat(),
             "nem_time": slot.nem_time.isoformat(),
             "estimate": True,
