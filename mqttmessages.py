@@ -1,6 +1,7 @@
 """Create the MQTT messages for the Amber and AEMO data"""
 import utils as ut
 from datetime import datetime
+from tzlocal import get_localzone
 
 from const import (
     SENSOR_LIST,
@@ -30,6 +31,7 @@ from const import (
     AEMO_5MIN_LAST_UPDATE,
 )
 
+LOCAL_TIME_ZONE = get_localzone()
 
 def amberDiscoveryMessage():
     """Create the Amber discovery message"""
@@ -186,9 +188,9 @@ def amberStateMessage(amberdata):
         },
         "attributes": {
             "start_time": amberdata["current"]["general"].start_time.isoformat(),
-            "start_time_time": amberdata["current"]["general"].start_time.time().isoformat(),
-            "start_time_time2": str(amberdata["current"]["general"].start_time.time()),
-            "start_time_time3": amberdata["current"]["general"].start_time.time().strftime('%H:%M:%S'),
+            "start_time_time": amberdata["current"]["general"].start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+            #"start_time_time2": str(amberdata["current"]["general"].start_time.time()),
+            #"start_time_time3": amberdata["current"]["general"].start_time.time().strftime('%H:%M:%S'),
             "end_time": amberdata["current"]["general"].end_time.isoformat(),
             "nem_time": amberdata["current"]["general"].nem_time.isoformat(),
             "estimate": amberdata["current"]["general"].estimate,
