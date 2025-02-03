@@ -470,13 +470,13 @@ def amberState5MinForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_5MIN_FORECASTS_GENERAL_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "general"}
+                "channel_type": "general",
+                "update_time": datetime.now().isoformat()}
     forecasts = []
     for slot in amberdata["forecasts"]["feed_in"]:
         slotForecasts = {
@@ -497,13 +497,13 @@ def amberState5MinForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_5MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "feedin"}
+                "channel_type": "feedin",
+                "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
@@ -541,13 +541,13 @@ def amberState30MinForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_30MIN_FORECASTS_GENERAL_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "general"}
+                "channel_type": "general",
+                "update_time": datetime.now().isoformat()}
     forecasts = []
     for slot in amberdata["forecasts"]["feed_in"]:
         slotForecasts = {
@@ -568,13 +568,13 @@ def amberState30MinForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_30MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "feedin"}
+                "channel_type": "feedin",
+                "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
@@ -612,13 +612,13 @@ def amberStateUserForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_USER_FORECASTS_GENERAL_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "general"}
+                "channel_type": "general",
+                "update_time": datetime.now().isoformat()}
     forecasts = []
     for slot in amberdata["forecasts"]["feed_in"]:
         slotForecasts = {
@@ -639,13 +639,13 @@ def amberStateUserForecasts(amberdata):
             "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
             "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
             "type": slot.type,
-            "update_time": datetime.now().isoformat(),
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_USER_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
-                "channel_type": "feedin"}
+                "channel_type": "feedin",
+                "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
