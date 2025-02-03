@@ -6,7 +6,7 @@ from paho.mqtt import client as mqtt_client
 import mqttmessages as mm
 from const import (
     AMBER_DISCOVERY_TOPIC,
-    AMBER_FORECAST_DISCOVERY_TOPIC
+    AMBER_FORECAST_DISCOVERY_TOPIC,
     AEMO_DISCOVERY_TOPIC,
     AMBER_STATE_TOPIC_CURRENT,
     AMBER_STATE_TOPIC_PERIODS,
