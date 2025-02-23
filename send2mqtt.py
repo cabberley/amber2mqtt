@@ -37,6 +37,17 @@ for key in config["mqtt"]:
     if key == "password":
         password = config["mqtt"]["password"]
 
+amber5minForecast = False
+amber30minForecast = False
+amberUserForecast = False
+for key in config["amber"]:
+    if key == "forecast5min":
+        amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
+    if key == "forecast30min":
+        amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
+    if key == "forecastUser":
+        amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
+
 def mqttConnectBroker():
     """Connect to the MQTT Broker"""
     def on_connect(client, userdata, flags, rc, properties=None):
@@ -58,8 +69,19 @@ def mqttConnectBroker():
         userdata = message.payload
         print(userdata)
         if userdata == b"online":
+            amber5minForecast = False
+            amber30minForecast = False
+            amberUserForecast = False
+            for key in config["amber"]:
+                if key == "forecast5min":
+                    amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
+                if key == "forecast30min":
+                    amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
+                if key == "forecastUser":
+                    amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
             PublishDiscoveryAmberEntities(client)
             PublishDiscoveryAemoEntities(client)
+            PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast)
         # We only want to process 10 messages
         # if len(userdata) >= 10:
         #    client.unsubscribe("$SYS/#")
