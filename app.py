@@ -78,10 +78,10 @@ def amber5minPrice():
                 amberData = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
                 a2m.publishAmberState5MinForecasts(client, amberData)
             if amber30minForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,50,0,30)
+                amberData = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
                 a2m.publishAmberState30MinForecasts(client, amberData)
             if amberUserForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,50,0,30)
+                amberData = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
                 a2m.publishAmberStateUserForecasts(client, amberData)
        # if LOG_5MIN_VALUES:
        #     logamber = dl.DataLog()
