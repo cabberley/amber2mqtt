@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any
 import amberelectric
+import amberelectric.api_client
 from amberelectric.rest import ApiException
 import utils as ut
 
@@ -33,6 +34,8 @@ def get_amber_data(access_token, site_id, next, previous, resolution):
                 "actuals": {},
                 "grid": {},
             }
+
+        api_instance.api_client.close()
 
         current = [interval for interval in intervals if ut.is_current(interval)]
         actuals = [interval for interval in intervals if ut.is_actual(interval)]

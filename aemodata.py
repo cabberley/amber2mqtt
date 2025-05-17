@@ -1,5 +1,6 @@
 import json
 import requests
+import asyncio
 from datetime import datetime
 import time
 
@@ -19,7 +20,7 @@ def reset_aemo_price_firm():
     global aemoPriceFirm
     aemoPriceFirm = False
 
-def get_aemo_current_data():
+async def get_aemo_current_data():
     # Get current price data from the API and parse the JSON
     try:
         apiResponse = requests.get(
