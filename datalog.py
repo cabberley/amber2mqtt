@@ -1,12 +1,15 @@
 import json
+import os
 import sqlite3
-#import amberelectric
-#from amberelectric.rest import ApiException
 import utils as ut
 
 
-with open("./config/config.json", "r") as f:
-    config = json.load(f)
+if os.path.isfile("/data/options.json"):
+    with open("/data/options.json", "r") as f:
+        config = json.load(f)
+else: 
+    with open("./data/options.json", "r") as f:
+        config = json.load(f)
 
 class DataLog:
     def __init__(self):
