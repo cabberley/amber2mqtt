@@ -79,7 +79,7 @@ def amber5minPrice():
             print("Amber Current Period data confirmed")
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
-                #a2m.publishAmberStatePeriods(client, amberData)
+                a2m.publishAmberStatePeriods(client, amberData)
             if amber5minForecast:
                 amberData5 = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
                 a2m.publishAmberState5MinForecasts(client, amberData5)
