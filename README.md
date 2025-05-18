@@ -6,6 +6,8 @@ This Container will based on the timing schedules you setup:
 1. Poll the Amber API using your account details
 2. Poll the AEMO website to retrieve the latest actual price & data for the current interval
 
+NOTE: New sensors that will generate 5min periods from the Amber 30minute forecasts, these new sensors for Extended General and feed in prices use the available 5min prices and then convert the 30min forecasts into 6 x 5min forecasts for the 30 minute period. Helpful for those that use EMHASS and wish to do 5 minute time resolution predictions/plans. To enable this read below to add a new config option called "forecast288".
+
 **NOTE:** This Add-on does require a MQTT Broker, you can use the Home Assistant Mosquitto Add-on or an external Broker
 
 ## Installation
@@ -38,6 +40,7 @@ To enable this new feature add the folowing keys in the AMber section of your op
    - "forecast5min": "True"
    - "forecast30min": "True"
    - "forecastUser": "True"
+   - "forecast288": "True"
 
 Make sure you include "," at the end of the correct lines to align with JSON file format!!
 
