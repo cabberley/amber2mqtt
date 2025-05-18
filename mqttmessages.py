@@ -8,6 +8,7 @@ from const import (
     SENSOR_FORECAST_5MIN_LIST,
     SENSOR_FORECAST_30MIN_LIST,
     SENSOR_FORECAST_USER_LIST,
+    SENSOR_FORECAST_5MIN_EXTENDED_LIST,
     AMBER_DEVICE,
     AMBER_OBJECT,
     AMBER_MQTT_PREFIX,
@@ -16,6 +17,7 @@ from const import (
     AMBER_STATE_TOPIC_5MIN_FORECASTS,
     AMBER_STATE_TOPIC_30MIN_FORECASTS,
     AMBER_STATE_TOPIC_USER_FORECASTS,
+    AMBER_STATE_TOPIC_5MIN_EXTENDED_FORECASTS,
     AMBER_5MIN_CURRENT_GENERAL_ENTITY,
     AMBER_5MIN_CURRENT_FEED_IN_ENTITY,
     AMBER_5MIN_CURRENT_AEMO_ENTITY,
@@ -27,6 +29,8 @@ from const import (
     AMBER_5MIN_FORECASTS_GENERAL_ENTITY,
     AMBER_5MIN_FORECASTS_FEED_IN_ENTITY,
     AMBER_5MIN_FORECASTS_AEMO_ENTITY,
+    AMBER_5MIN_FORECASTS_EXTENDED_GENERAL_ENTITY,
+    AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY,
     AMBER_30MIN_FORECASTS_GENERAL_ENTITY,
     AMBER_30MIN_FORECASTS_FEED_IN_ENTITY,
     AMBER_30MIN_FORECASTS_AEMO_ENTITY,
@@ -136,6 +140,34 @@ def amberForecast5minDiscoveryMessage():
     cmps = {}
     for sensor in SENSOR_FORECAST_5MIN_LIST:
         state_topic = AMBER_STATE_TOPIC_5MIN_FORECASTS
+        sensorDict = {
+            "name": sensor,
+            "unique_id": sensor.lower().replace(" ", "_"),
+            "obj_id": sensor.lower().replace(" ", "_"),
+            "state_topic": state_topic,
+            "json_attributes_topic": (
+                f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
+            ),
+            "device_class": "monetary",
+            "unit_of_measurement": "$/kWh",
+            "p": "sensor",
+            "value_template": "{{ value_json."
+            + sensor.lower().replace(" ", "_")
+            + " }}",
+        }
+        cmps[sensor] = sensorDict
+    discoveryMsg = {
+        "device": AMBER_FORECAST_DEVICE,
+        "o": AMBER_FORECAST_OBJECT,
+        "cmps": cmps,
+    }
+    return discoveryMsg
+
+def amberForecast288DiscoveryMessage():
+    """Create the Amber discovery message for the 5 minute forecast"""
+    cmps = {}
+    for sensor in SENSOR_FORECAST_5MIN_EXTENDED_LIST:
+        state_topic = AMBER_STATE_TOPIC_5MIN_EXTENDED_FORECASTS
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
@@ -500,6 +532,76 @@ def amberState5MinForecasts(amberdata):
         }
         forecasts.append(slotForecasts)
     attributes[AMBER_5MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
+                " ", "_"
+            )]={"Forecasts": forecasts,
+                "channel_type": "feedin",
+                "update_time": datetime.now().isoformat()}
+    stateMsg = {"state": data, "attributes": attributes}
+    return stateMsg
+
+def amberState5MinExtendedForecasts(amberdata):
+    attributes = {}
+    data = {}
+    data = {
+
+            AMBER_5MIN_FORECASTS_EXTENDED_GENERAL_ENTITY.lower().replace(
+                " ", "_"
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].per_kwh),
+            AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY.lower().replace(
+                " ", "_"
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1),
+        }
+
+    forecasts = []
+    for slot in amberdata["forecasts"]["general"]:
+        slotForecasts = {
+            "duration": slot.duration,
+            "date": slot.var_date.strftime('%Y-%m-%d'),
+            "nem_date": slot.nem_time.isoformat(),
+            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+            "start_time": slot.start_time.isoformat(),
+            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+            "end_time": slot.end_time.isoformat(),
+            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+            "renewables": slot.renewables,
+            "spike_status": slot.spike_status,
+            "descriptor": ut.normalize_descriptor(slot.descriptor),
+            "estimate": True,  
+            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+            "type": slot.type,
+        }
+        forecasts.append(slotForecasts)
+    attributes[AMBER_5MIN_FORECASTS_EXTENDED_GENERAL_ENTITY.lower().replace(
+                " ", "_"
+            )]={"Forecasts": forecasts,
+                "channel_type": "general",
+                "update_time": datetime.now().isoformat()}
+    forecasts = []
+    for slot in amberdata["forecasts"]["feed_in"]:
+        slotForecasts = {
+            "duration": slot.duration,
+            "date": slot.var_date.strftime('%Y-%m-%d'),
+            "nem_date": slot.nem_time.isoformat(),
+            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+            "start_time": slot.start_time.isoformat(),
+            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+            "end_time": slot.end_time.isoformat(),
+            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+            "renewables": slot.renewables,
+            "spike_status": slot.spike_status,
+            "descriptor": ut.normalize_descriptor(slot.descriptor),
+            "estimate": True,  
+            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+            "type": slot.type,
+        }
+        forecasts.append(slotForecasts)
+    attributes[AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
             )]={"Forecasts": forecasts,
                 "channel_type": "feedin",
