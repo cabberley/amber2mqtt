@@ -13,12 +13,17 @@ from const import (
     AMBER_STATE_TOPIC_5MIN_FORECASTS,
     AMBER_STATE_TOPIC_30MIN_FORECASTS,
     AMBER_STATE_TOPIC_USER_FORECASTS,
+    AMBER_STATE_TOPIC_5MIN_EXTENDED_FORECASTS,
     AMBER_MQTT_PREFIX,
     SENSOR_LIST_CURRENT,
     AEMO_STATE_TOPIC_CURRENT,
 )
 
-if os.path.isfile("/data/options.json"):
+if os.path.isfile("options.json"):
+    with open("options.json", "r") as f:
+        config = json.load(f)
+
+elif os.path.isfile("/data/options.json"):
     with open("/data/options.json", "r") as f:
         config = json.load(f)
 else: 
@@ -40,6 +45,7 @@ for key in config["mqtt"]:
 amber5minForecast = False
 amber30minForecast = False
 amberUserForecast = False
+amber288Forecast = False
 for key in config["amber"]:
     if key == "forecast5min":
         amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
@@ -47,7 +53,11 @@ for key in config["amber"]:
         amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
     if key == "forecastUser":
         amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
-
+    if key == "forecast288":
+        amber288Forecast = True if config["amber"]["forecast288"].lower() == "true" else False  
+if amber288Forecast:
+    amber5minForecast = True
+    amber30minForecast = True
 def mqttConnectBroker():
     """Connect to the MQTT Broker"""
     def on_connect(client, userdata, flags, rc, properties=None):
@@ -72,6 +82,7 @@ def mqttConnectBroker():
             amber5minForecast = False
             amber30minForecast = False
             amberUserForecast = False
+            amber288Forecast = True
             for key in config["amber"]:
                 if key == "forecast5min":
                     amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
@@ -79,9 +90,14 @@ def mqttConnectBroker():
                     amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
                 if key == "forecastUser":
                     amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
+                if key == "forecast288":
+                    amber288Forecast = True if config["amber"]["forecast288"].lower() == "true" else False
+            if amber288Forecast == True:
+                amber5minForecast = True
+                amber30minForecast = True
             PublishDiscoveryAmberEntities(client)
             PublishDiscoveryAemoEntities(client)
-            PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast)
+            PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast,amber288Forecast)
         # We only want to process 10 messages
         # if len(userdata) >= 10:
         #    client.unsubscribe("$SYS/#")
@@ -107,7 +123,7 @@ def PublishDiscoveryAmberEntities(client):
     if status != 0:
         print(f"Failed to send message to topic {AMBER_DISCOVERY_TOPIC}")
 
-def PublishDiscoveryAmberForecastEntities(client,forecast5,forecast30,forecastUser):
+def PublishDiscoveryAmberForecastEntities(client,forecast5,forecast30,forecastUser,forecast288):
     """Publish the Amber Entities to Home Assistant"""
     #topic = HOME_ASSISTANT_DISCOVERY_TOPIC
     # for sensor in SENSOR_LIST:
@@ -129,6 +145,14 @@ def PublishDiscoveryAmberForecastEntities(client,forecast5,forecast30,forecastUs
             print(f"Failed to send message to topic {AMBER_FORECAST_DISCOVERY_TOPIC}")
     if forecastUser:
         discoveryMsg = mm.amberForecastUserDiscoveryMessage()
+        result = client.publish(
+            AMBER_FORECAST_DISCOVERY_TOPIC,
+            json.dumps(discoveryMsg), qos=0, retain=True)
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {AMBER_FORECAST_DISCOVERY_TOPIC}")
+    if forecast288:
+        discoveryMsg = mm.amberForecast288DiscoveryMessage()
         result = client.publish(
             AMBER_FORECAST_DISCOVERY_TOPIC,
             json.dumps(discoveryMsg), qos=0, retain=True)
@@ -223,6 +247,33 @@ def publishAmberState5MinForecasts(client, amberdata):
         status = result[0]
         if status != 0:
             print(f"Failed to send message to topic {topic}")
+
+def publishAmberState5MinExtendedForecasts(client, amberdata):
+    """Publish the Amber state to MQTT for the 12 periods"""
+    messageContent = mm.amberState5MinExtendedForecasts(amberdata)
+    # print(json.dumps(messageContent["state"]))
+    result = client.publish(
+        AMBER_STATE_TOPIC_5MIN_EXTENDED_FORECASTS,
+        json.dumps(messageContent["state"]),
+        qos=0,
+        retain=True,
+    )
+    status = result[0]
+    if status != 0:
+        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_FORECASTS}")
+    for attributemsg in messageContent["attributes"]:
+        topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
+        # test = json.dumps(messageContent["attributes"][attributemsg])
+        result = client.publish(
+            topic,
+            json.dumps(messageContent["attributes"][attributemsg]),
+            qos=0,
+            retain=True,
+        )
+        status = result[0]
+        if status != 0:
+            print(f"Failed to send message to topic {topic}")
+
             
 def publishAmberState30MinForecasts(client, amberdata):
     """Publish the Amber state to MQTT for the 12 periods"""

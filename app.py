@@ -10,7 +10,11 @@ import amberdata as al
 #import datalog as dl
 import send2mqtt as a2m
 
-if os.path.isfile("/data/options.json"):
+if os.path.isfile("options.json"):
+    with open("options.json", "r") as f:
+        config = json.load(f)
+
+elif os.path.isfile("/data/options.json"):
     with open("/data/options.json", "r") as f:
         config = json.load(f)
 else: 
@@ -33,21 +37,23 @@ mqttDebug = True if config["mqtt"]["debug"].lower() == "true" else False
 amber5minForecast = False
 amber30minForecast = False
 amberUserForecast = False
+amber288Forecast = False
 for key in config["amber"]:
     if key == "forecast5min":
+        #test =(config["amber"]["forecast5min"].lower() )
         amber5minForecast = True if config["amber"]["forecast5min"].lower() == "true" else False
     if key == "forecast30min":
         amber30minForecast = True if config["amber"]["forecast30min"].lower() == "true" else False
     if key == "forecastUser":
         amberUserForecast = True if config["amber"]["forecastUser"].lower() == "true" else False
-
+    if key == "forecast288":
+        amber288Forecast = True if config["amber"]["forecast288"].lower() == "true" else False
+if amber288Forecast:
+    amber5minForecast = True
+    amber30minForecast = True
 amberEstimatePrice = True
 aemoPriceFirm = False
 
-#if LOG_5MIN_VALUES:
-#    logs = dl.DataLog()
-#    logs.create_table_amber()
-#    logs.conn.close()
 
 def aemoResetPriceFirm():
     """Reset the AEMO Price Firm to False"""
@@ -73,24 +79,25 @@ def amber5minPrice():
             print("Amber Current Period data confirmed")
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
-                a2m.publishAmberStatePeriods(client, amberData)
+                #a2m.publishAmberStatePeriods(client, amberData)
             if amber5minForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
-                a2m.publishAmberState5MinForecasts(client, amberData)
+                amberData5 = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
+                a2m.publishAmberState5MinForecasts(client, amberData5)
             if amber30minForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
-                a2m.publishAmberState30MinForecasts(client, amberData)
+                amberData30 = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
+                a2m.publishAmberState30MinForecasts(client, amberData30)
             if amberUserForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
+                amberData = al.getAmberData(amberApiToken, amberSiteId,99,0,0)
                 a2m.publishAmberStateUserForecasts(client, amberData)
-       # if LOG_5MIN_VALUES:
-       #     logamber = dl.DataLog()
-       #     logamber.log_amber_data(requestTime, responseTime, amberData)
-       #     logamber.conn.close() # .close_connection()
+            if amber288Forecast:
+                amberData288 = al.create_288_5min_intervals(amberData5, amberData30)
+                a2m.publishAmberState5MinExtendedForecasts(client, amberData288)
+       
 
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
     global aemoPriceFirm
+    
     if not aemoPriceFirm:
         aemoData = aemo.getAemoCurrentData()
         aemoPriceFirm = aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0])
@@ -107,14 +114,14 @@ if __name__ == '__main__':
     scheduler = BackgroundScheduler()
     # setting the scheduled task
     client = a2m.mqttConnectBroker()
-
+    #amber5minPrice()
     if mqttDebug:
         client.enable_logger(mqttLogger)
     client.loop_start()
     client.subscribe("homeassistant/status")
     a2m.PublishDiscoveryAmberEntities(client)
     a2m.PublishDiscoveryAemoEntities(client)
-    a2m.PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast)
+    a2m.PublishDiscoveryAmberForecastEntities(client,amber5minForecast,amber30minForecast,amberUserForecast,amber288Forecast)
     
     scheduler.add_job(
         amberResetEstimatePrice, 'cron', minute='0,5,10,15,20,25,30,35,40,45,50,55' ,second=5)
