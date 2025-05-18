@@ -19,11 +19,11 @@ from const import (
     AEMO_STATE_TOPIC_CURRENT,
 )
 
-if os.path.isfile("options.json"):
-    with open("options.json", "r") as f:
-        config = json.load(f)
+#if os.path.isfile("options.json"):
+#    with open("options.json", "r") as f:
+#        config = json.load(f)
 
-elif os.path.isfile("/data/options.json"):
+if os.path.isfile("/data/options.json"):
     with open("/data/options.json", "r") as f:
         config = json.load(f)
 else: 
