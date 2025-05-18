@@ -19,7 +19,6 @@ jobs:
             { target_arch: armv7, os_version: python },
             { target_arch: armhf, os_version: python },
             { target_arch: aarch64, os_version: python },
-            { target_arch: i386, os_version: python },
           ]
     steps:
       - name: Prepare
