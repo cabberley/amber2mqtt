@@ -296,9 +296,10 @@ def amberStateMessage(amberdata):
             AMBER_5MIN_CURRENT_GENERAL_ENTITY.lower().replace(
                 " ", "_"
             ): ut.format_cents_to_dollars(amberdata["current"]["general"].per_kwh),
+            
             AMBER_5MIN_CURRENT_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
-            ): ut.format_cents_to_dollars(amberdata["current"]["feed_in"].per_kwh * -1),
+            ): ut.format_cents_to_dollars(amberdata["current"]["feed_in"].per_kwh * -1) if "feed_in" in amberdata["current"].keys() else None,
             AMBER_5MIN_CURRENT_AEMO_ENTITY.lower().replace(
                 " ", "_"
             ): ut.format_cents_to_dollars(amberdata["current"]["general"].spot_per_kwh),
@@ -315,7 +316,7 @@ def amberStateMessage(amberdata):
             ): amberdata["current"]["general"].descriptor,
             AMBER_5MIN_CURRENT_FEED_IN_DESCRIPTOR_ENTITY.lower().replace(
                 " ", "_"
-            ): amberdata["current"]["feed_in"].descriptor,
+            ): amberdata["current"]["feed_in"].descriptor if "feed_in" in amberdata["current"].keys() else None,
             AMBER_5MIN_LAST_UPDATE.lower().replace(" ", "_"): datetime.now().isoformat(),
         },
         "attributes": {
@@ -356,16 +357,19 @@ def amberState5MinPeriods(amberdata):
     while x < currentSlot:
         slotGeneral.append(amberdata["actuals"]["general"][rows - currentSlot + x])
         slotAemo.append(amberdata["actuals"]["general"][rows - currentSlot + x])
-        slotFeedin.append(amberdata["actuals"]["feed_in"][rows - currentSlot + x])
+        if "feed_in" in amberdata["actuals"].keys():
+            slotFeedin.append(amberdata["actuals"]["feed_in"][rows - currentSlot + x])
         x += 1
     slotGeneral.append(amberdata["current"]["general"])
-    slotFeedin.append(amberdata["current"]["feed_in"])
+    if "feed_in" in amberdata["current"].keys(): 
+        slotFeedin.append(amberdata["current"]["feed_in"])
     rows = len(amberdata["forecasts"]["general"])
     while x < 11:
         if x - currentSlot <= rows:
             slotGeneral.append(amberdata["forecasts"]["general"][x - currentSlot])
             slotAemo.append(amberdata["forecasts"]["general"][x - currentSlot])
-            slotFeedin.append(amberdata["forecasts"]["feed_in"][x - currentSlot])
+            if "feed_in" in amberdata["forecasts"].keys(): 
+                slotFeedin.append(amberdata["forecasts"]["feed_in"][x - currentSlot])
         x += 1
     x = 1
     data = {}
@@ -476,7 +480,7 @@ def amberState5MinForecasts(amberdata):
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].per_kwh),
             AMBER_5MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
-            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1),
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1) if "feed_in" in amberdata["forecasts"].keys() else None,
             AMBER_5MIN_FORECASTS_AEMO_ENTITY.lower().replace(
                 " ", "_"
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].spot_per_kwh)
@@ -509,33 +513,34 @@ def amberState5MinForecasts(amberdata):
             )]={"Forecasts": forecasts,
                 "channel_type": "general",
                 "update_time": datetime.now().isoformat()}
-    forecasts = []
-    for slot in amberdata["forecasts"]["feed_in"]:
-        slotForecasts = {
-            "duration": slot.duration,
-            "date": slot.var_date.strftime('%Y-%m-%d'),
-            "nem_date": slot.nem_time.isoformat(),
-            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
-            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
-            "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "end_time": slot.end_time.isoformat(),
-            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "renewables": slot.renewables,
-            "spike_status": slot.spike_status,
-            "descriptor": ut.normalize_descriptor(slot.descriptor),
-            "estimate": True,  
-            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
-            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
-            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
-            "type": slot.type,
-        }
-        forecasts.append(slotForecasts)
-    attributes[AMBER_5MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
-                " ", "_"
-            )]={"Forecasts": forecasts,
-                "channel_type": "feedin",
-                "update_time": datetime.now().isoformat()}
+    if "feed_in" in amberdata["forecasts"].keys():
+        forecasts = []
+        for slot in amberdata["forecasts"]["feed_in"]:
+            slotForecasts = {
+                "duration": slot.duration,
+                "date": slot.var_date.strftime('%Y-%m-%d'),
+                "nem_date": slot.nem_time.isoformat(),
+                "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+                "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+                "start_time": slot.start_time.isoformat(),
+                "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "end_time": slot.end_time.isoformat(),
+                "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "renewables": slot.renewables,
+                "spike_status": slot.spike_status,
+                "descriptor": ut.normalize_descriptor(slot.descriptor),
+                "estimate": True,  
+                "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+                "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+                "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+                "type": slot.type,
+            }
+            forecasts.append(slotForecasts)
+        attributes[AMBER_5MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
+                    " ", "_"
+                )]={"Forecasts": forecasts,
+                    "channel_type": "feedin",
+                    "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
@@ -549,7 +554,7 @@ def amberState5MinExtendedForecasts(amberdata):
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].per_kwh),
             AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
-            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1),
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1) if "feed_in" in amberdata["forecasts"].keys() else None,
         }
 
     forecasts = []
@@ -580,32 +585,34 @@ def amberState5MinExtendedForecasts(amberdata):
                 "channel_type": "general",
                 "update_time": datetime.now().isoformat()}
     forecasts = []
-    for slot in amberdata["forecasts"]["feed_in"]:
-        slotForecasts = {
-            "duration": slot.duration,
-            "date": slot.var_date.strftime('%Y-%m-%d'),
-            "nem_date": slot.nem_time.isoformat(),
-            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
-            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
-            "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "end_time": slot.end_time.isoformat(),
-            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "renewables": slot.renewables,
-            "spike_status": slot.spike_status,
-            "descriptor": ut.normalize_descriptor(slot.descriptor),
-            "estimate": True,  
-            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
-            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
-            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
-            "type": slot.type,
-        }
-        forecasts.append(slotForecasts)
-    attributes[AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY.lower().replace(
-                " ", "_"
-            )]={"Forecasts": forecasts,
-                "channel_type": "feedin",
-                "update_time": datetime.now().isoformat()}
+    if "feed_in" in amberdata["forecasts"].keys():
+        forecasts = []
+        for slot in amberdata["forecasts"]["feed_in"]:
+            slotForecasts = {
+                "duration": slot.duration,
+                "date": slot.var_date.strftime('%Y-%m-%d'),
+                "nem_date": slot.nem_time.isoformat(),
+                "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+                "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+                "start_time": slot.start_time.isoformat(),
+                "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "end_time": slot.end_time.isoformat(),
+                "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "renewables": slot.renewables,
+                "spike_status": slot.spike_status,
+                "descriptor": ut.normalize_descriptor(slot.descriptor),
+                "estimate": True,  
+                "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+                "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+                "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+                "type": slot.type,
+            }
+            forecasts.append(slotForecasts)
+        attributes[AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY.lower().replace(
+                    " ", "_"
+                )]={"Forecasts": forecasts,
+                    "channel_type": "feedin",
+                    "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
@@ -618,7 +625,7 @@ def amberState30MinForecasts(amberdata):
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].per_kwh),
             AMBER_30MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
-            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1),
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1) if "feed_in" in amberdata["forecasts"].keys() else None,
             AMBER_30MIN_FORECASTS_AEMO_ENTITY.lower().replace(
                 " ", "_"
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].spot_per_kwh)
@@ -651,32 +658,34 @@ def amberState30MinForecasts(amberdata):
                 "channel_type": "general",
                 "update_time": datetime.now().isoformat()}
     forecasts = []
-    for slot in amberdata["forecasts"]["feed_in"]:
-        slotForecasts = {
-            "duration": slot.duration,
-            "date": slot.var_date.strftime('%Y-%m-%d'),
-            "nem_date": slot.nem_time.isoformat(),
-            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
-            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
-            "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "end_time": slot.end_time.isoformat(),
-            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "renewables": slot.renewables,
-            "spike_status": slot.spike_status,
-            "descriptor": ut.normalize_descriptor(slot.descriptor),
-            "estimate": True,  
-            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
-            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
-            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
-            "type": slot.type,
-        }
-        forecasts.append(slotForecasts)
-    attributes[AMBER_30MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
-                " ", "_"
-            )]={"Forecasts": forecasts,
-                "channel_type": "feedin",
-                "update_time": datetime.now().isoformat()}
+    if "feed_in" in amberdata["forecasts"].keys():
+        forecasts = []
+        for slot in amberdata["forecasts"]["feed_in"]:
+            slotForecasts = {
+                "duration": slot.duration,
+                "date": slot.var_date.strftime('%Y-%m-%d'),
+                "nem_date": slot.nem_time.isoformat(),
+                "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+                "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+                "start_time": slot.start_time.isoformat(),
+                "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "end_time": slot.end_time.isoformat(),
+                "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "renewables": slot.renewables,
+                "spike_status": slot.spike_status,
+                "descriptor": ut.normalize_descriptor(slot.descriptor),
+                "estimate": True,  
+                "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+                "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+                "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+                "type": slot.type,
+            }
+            forecasts.append(slotForecasts)
+        attributes[AMBER_30MIN_FORECASTS_FEED_IN_ENTITY.lower().replace(
+                    " ", "_"
+                )]={"Forecasts": forecasts,
+                    "channel_type": "feedin",
+                    "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
@@ -689,7 +698,7 @@ def amberStateUserForecasts(amberdata):
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].per_kwh),
             AMBER_USER_FORECASTS_FEED_IN_ENTITY.lower().replace(
                 " ", "_"
-            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1),
+            ): ut.format_cents_to_dollars(amberdata["forecasts"]["feed_in"][0].per_kwh * -1) if "feed_in" in amberdata["forecasts"].keys() else None,
             AMBER_USER_FORECASTS_AEMO_ENTITY.lower().replace(
                 " ", "_"
             ): ut.format_cents_to_dollars(amberdata["forecasts"]["general"][0].spot_per_kwh)
@@ -722,32 +731,34 @@ def amberStateUserForecasts(amberdata):
                 "channel_type": "general",
                 "update_time": datetime.now().isoformat()}
     forecasts = []
-    for slot in amberdata["forecasts"]["feed_in"]:
-        slotForecasts = {
-            "duration": slot.duration,
-            "date": slot.var_date.strftime('%Y-%m-%d'),
-            "nem_date": slot.nem_time.isoformat(),
-            "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
-            "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
-            "start_time": slot.start_time.isoformat(),
-            "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "end_time": slot.end_time.isoformat(),
-            "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
-            "renewables": slot.renewables,
-            "spike_status": slot.spike_status,
-            "descriptor": ut.normalize_descriptor(slot.descriptor),
-            "estimate": True,  
-            "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
-            "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
-            "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
-            "type": slot.type,
-        }
-        forecasts.append(slotForecasts)
-    attributes[AMBER_USER_FORECASTS_FEED_IN_ENTITY.lower().replace(
-                " ", "_"
-            )]={"Forecasts": forecasts,
-                "channel_type": "feedin",
-                "update_time": datetime.now().isoformat()}
+    if "feed_in" in amberdata["forecasts"].keys():
+        forecasts = []
+        for slot in amberdata["forecasts"]["feed_in"]:
+            slotForecasts = {
+                "duration": slot.duration,
+                "date": slot.var_date.strftime('%Y-%m-%d'),
+                "nem_date": slot.nem_time.isoformat(),
+                "per_kwh": ut.format_cents_to_dollars(slot.per_kwh),
+                "spot_per_kwh": ut.format_cents_to_dollars(slot.spot_per_kwh),
+                "start_time": slot.start_time.isoformat(),
+                "start_time_time": slot.start_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "end_time": slot.end_time.isoformat(),
+                "end_time_time": slot.end_time.astimezone(LOCAL_TIME_ZONE).strftime('%H:%M:%S'),
+                "renewables": slot.renewables,
+                "spike_status": slot.spike_status,
+                "descriptor": ut.normalize_descriptor(slot.descriptor),
+                "estimate": True,  
+                "advanced_price_low" : ut.format_cents_to_dollars(slot.advanced_price.low) if slot.advanced_price is not None else None,
+                "advanced_price_predicted": ut.format_cents_to_dollars(slot.advanced_price.predicted) if slot.advanced_price is not None else None,
+                "advanced_price_high" : ut.format_cents_to_dollars(slot.advanced_price.high) if slot.advanced_price is not None else None,
+                "type": slot.type,
+            }
+            forecasts.append(slotForecasts)
+        attributes[AMBER_USER_FORECASTS_FEED_IN_ENTITY.lower().replace(
+                    " ", "_"
+                )]={"Forecasts": forecasts,
+                    "channel_type": "feedin",
+                    "update_time": datetime.now().isoformat()}
     stateMsg = {"state": data, "attributes": attributes}
     return stateMsg
 
