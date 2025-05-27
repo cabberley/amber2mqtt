@@ -112,6 +112,7 @@ if __name__ == '__main__':
     if mqttDebug:
         mqttLogger = logging.getLogger('paho').setLevel(logging.DEBUG)
     scheduler = BackgroundScheduler()
+    scheduler.configure(job_defaults={'max_instances': 2})
     # setting the scheduled task
     client = a2m.mqttConnectBroker()
     #amber5minPrice()
