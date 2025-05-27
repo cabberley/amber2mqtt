@@ -102,9 +102,10 @@ def create_288_5min_intervals(amberData5, amberData30):
     result["forecasts"]["general"] = [
         interval for interval in amberData5["forecasts"]["general"]
         ]
-    result["forecasts"]["feed_in"] = [
-        interval for interval in amberData5["forecasts"]["feed_in"]
-        ]
+    if "feed_in" in amberData5["forecasts"].keys():
+        result["forecasts"]["feed_in"] = [
+            interval for interval in amberData5["forecasts"]["feed_in"]
+            ]
     timeCheckEnd = amberData5["forecasts"]["general"][len(amberData5["forecasts"]["general"])-1].end_time
     for interval in amberData30["forecasts"]["general"]:
         startTime = interval.start_time
@@ -131,31 +132,32 @@ def create_288_5min_intervals(amberData5, amberData30):
                 result["forecasts"]["general"].append(newInterval)
     if len(result["forecasts"]["general"]) > 288:
         result["forecasts"]["general"] = result["forecasts"]["general"][0:288]
-    for interval in amberData30["forecasts"]["feed_in"]:
-        startTime = interval.start_time
-        nemTime = interval.nem_time
-        for i in range(0, 30, 5):
-            newInterval = amberelectric.models.ForecastInterval(
-                    type=interval.type,
-                    duration=5,
-                    spot_per_kwh=interval.spot_per_kwh,
-                    per_kwh=interval.per_kwh,
-                    var_date=interval.var_date,
-                    start_time=startTime + timedelta(minutes=i),
-                    end_time=startTime + timedelta(minutes=i+5) - timedelta(seconds=1),
-                    nem_time=nemTime - timedelta(seconds=(nemTime-(startTime + timedelta(minutes=i))).seconds) + timedelta(minutes=5) - timedelta(seconds=1),
-                    renewables=interval.renewables,
-                    channel_type=interval.channel_type,
-                    tariff_information=interval.tariff_information,
-                    spike_status=interval.spike_status,
-                    descriptor=interval.descriptor,
-                    range=interval.range,
-                    advanced_price=interval.advanced_price,
-                )
-            if newInterval.end_time > timeCheckEnd:
-            #not in result["forecasts"]["general"]:
-                result["forecasts"]["feed_in"].append(newInterval)
+    if "feed_in" in amberData30["forecasts"].keys():
+        for interval in amberData30["forecasts"]["feed_in"]:
+            startTime = interval.start_time
+            nemTime = interval.nem_time
+            for i in range(0, 30, 5):
+                newInterval = amberelectric.models.ForecastInterval(
+                        type=interval.type,
+                        duration=5,
+                        spot_per_kwh=interval.spot_per_kwh,
+                        per_kwh=interval.per_kwh,
+                        var_date=interval.var_date,
+                        start_time=startTime + timedelta(minutes=i),
+                        end_time=startTime + timedelta(minutes=i+5) - timedelta(seconds=1),
+                        nem_time=nemTime - timedelta(seconds=(nemTime-(startTime + timedelta(minutes=i))).seconds) + timedelta(minutes=5) - timedelta(seconds=1),
+                        renewables=interval.renewables,
+                        channel_type=interval.channel_type,
+                        tariff_information=interval.tariff_information,
+                        spike_status=interval.spike_status,
+                        descriptor=interval.descriptor,
+                        range=interval.range,
+                        advanced_price=interval.advanced_price,
+                    )
+                if newInterval.end_time > timeCheckEnd:
+                #not in result["forecasts"]["general"]:
+                    result["forecasts"]["feed_in"].append(newInterval)
 
-        if len(result["forecasts"]["feed_in"]) > 288:
-            result["forecasts"]["feed_in"] = result["forecasts"]["feed_in"][0:288]
+            if len(result["forecasts"]["feed_in"]) > 288:
+                result["forecasts"]["feed_in"] = result["forecasts"]["feed_in"][0:288]
     return result
