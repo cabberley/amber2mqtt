@@ -24,9 +24,6 @@ On your Docker Host:
 Create a new docker container and pull the image.
 - make sure to map the volume /data to your config folder storing the options.json file
 
-If you prefer to use Docker Hub
-`docker pull cabberley1/amber2mqtt:latest`
-
 If you prefer to use GitHub Container Registry:
 `docker pull ghcr.io/cabberley/amber2mqtt:latest`
 
