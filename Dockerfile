@@ -9,6 +9,9 @@ FROM ghcr.io/home-assistant/$TARGETARCH-base-$os_version:latest AS base
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH:?}
 
+ARG RELEASE
+ENV RELEASE=${release_version}
+
 # FROM python:3.13.1-alpine3.20
 
 WORKDIR /app
@@ -34,6 +37,7 @@ LABEL \
     io.hass.arch="aarch64|amd64|armhf|armv7" \
     org.opencontainers.image.authors="Chris Abberley <chris@abberley.com.au>" \
     org.opencontainers.image.source="https://github.com/cabberley/amber2mqtt" \
+    org.opencontainers.image.version=$RELEASE \
     org.opencontainers.image.description="Amber and AEMO solution to poll prices quickly from their source."
   #/opt/amber/config
 
