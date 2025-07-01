@@ -23,9 +23,10 @@ jobs:
       matrix:
         platform:
           [
-            { target_arch: amd64, os_version: alpine },
-            { target_arch: armv7, os_version: alpine },
-            { target_arch: armhf, os_version: raspbian },
+            { target_arch: amd64, os_version: python },
+            { target_arch: armv7, os_version: python },
+            { target_arch: armhf, os_version: python },
+            { target_arch: aarch64, os_version: python },
           ]
     steps:
       # Pull git repo and build each architecture image separately (with QEMU and Buildx)
