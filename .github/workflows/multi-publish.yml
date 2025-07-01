@@ -54,6 +54,7 @@ jobs:
           build-args: |
             TARGETARCH=${{ matrix.platform.target_arch }}
             os_version=${{ matrix.platform.os_version }}
+            release_version=${{ github.event.release.name }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=${{ env.GHCR_REPO }}",push-by-digest=true,name-canonical=true,push=true
 
