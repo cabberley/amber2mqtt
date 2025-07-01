@@ -84,10 +84,10 @@ def amber5minPrice():
                 amberData5 = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
                 a2m.publishAmberState5MinForecasts(client, amberData5)
             if amber30minForecast:
-                amberData30 = al.getAmberData(amberApiToken, amberSiteId,60,0,30)
+                amberData30 = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
                 a2m.publishAmberState30MinForecasts(client, amberData30)
             if amberUserForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,72,0,0)
+                amberData = al.getAmberData(amberApiToken, amberSiteId,288,0,0)
                 a2m.publishAmberStateUserForecasts(client, amberData)
             if amber288Forecast:
                 amberData288 = al.create_288_5min_intervals(amberData5, amberData30)
