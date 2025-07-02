@@ -56,7 +56,7 @@ jobs:
             os_version=${{ matrix.platform.os_version }}
             release_version=${{ github.event.release.name }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=${{ env.GHCR_REPO }}",push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,"name=${{ env.GHCR_REPO }}",push-by-digest=true,name-canonical=true,push=true,annotation-index.amber2mqtt.version=${{ github.event.release.name }}
 
       - name: Export digest
         run: |
