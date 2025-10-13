@@ -65,7 +65,7 @@ def amberDiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -82,7 +82,7 @@ def amberDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AMBER_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -92,7 +92,7 @@ def amberDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AMBER_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -102,7 +102,7 @@ def amberDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AMBER_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -112,7 +112,7 @@ def amberDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AMBER_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -122,7 +122,7 @@ def amberDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AMBER_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -143,7 +143,7 @@ def amberForecast5minDiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -171,7 +171,7 @@ def amberForecast288DiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -199,7 +199,7 @@ def amberForecastUserDiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -227,7 +227,7 @@ def amberForecast30minDiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -258,7 +258,7 @@ def aemoDiscoveryMessage():
         sensorDict = {
             "name": sensor,
             "unique_id": sensor.lower().replace(" ", "_"),
-            "obj_id": sensor.lower().replace(" ", "_"),
+            "default_entity_id": sensor.lower().replace(" ", "_"),
             "state_topic": state_topic,
             "json_attributes_topic": (
                 f"{AMBER_MQTT_PREFIX}/{sensor.lower().replace(' ', '_')}/attributes"
@@ -275,7 +275,7 @@ def aemoDiscoveryMessage():
     sensorDict = {
         "name": sensor,
         "unique_id": sensor.lower().replace(" ", "_"),
-        "obj_id": sensor.lower().replace(" ", "_"),
+        "default_entity_id": sensor.lower().replace(" ", "_"),
         "state_topic": AEMO_STATE_TOPIC_CURRENT,
         "p": "sensor",
         "value_template": "{{ value_json." + sensor.lower().replace(" ", "_") + " }}",
@@ -829,3 +829,4 @@ def aemoCurrentStateMessage(aemoData):
             )
     stateMsg = {"state": state, "attributes": attributes}
     return stateMsg
+
