@@ -70,40 +70,49 @@ def amberResetEstimatePrice():
 def amber5minPrice():
     """Get the current prices from the Amber API every 5 minutes"""
     global amberEstimatePrice
-    if amberEstimatePrice:
-        requestTime = dt.now()
-        amberData = al.getAmberData(amberApiToken, amberSiteId,  13,5,5)
-        responseTime = dt.now()
-        amberEstimatePrice = amberData["current"]["general"].estimate
-        if not amberEstimatePrice:
-            print("Amber Current Period data confirmed")
-            if amber2mqtt:
-                a2m.publishAmberStateCurrent(client, amberData)
-                a2m.publishAmberStatePeriods(client, amberData)
-            if amber5minForecast:
-                amberData5 = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
-                a2m.publishAmberState5MinForecasts(client, amberData5)
-            if amber30minForecast:
-                amberData30 = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
-                a2m.publishAmberState30MinForecasts(client, amberData30)
-            if amberUserForecast:
-                amberData = al.getAmberData(amberApiToken, amberSiteId,288,0,0)
-                a2m.publishAmberStateUserForecasts(client, amberData)
-            if amber288Forecast:
-                amberData288 = al.create_288_5min_intervals(amberData5, amberData30)
-                a2m.publishAmberState5MinExtendedForecasts(client, amberData288)
+    try:
+        if amberEstimatePrice:
+            requestTime = dt.now()
+            amberData = al.getAmberData(amberApiToken, amberSiteId,  13,5,5)
+            responseTime = dt.now()
+            amberEstimatePrice = amberData["current"]["general"].estimate
+            if not amberEstimatePrice:
+                print("Amber Current Period data confirmed")
+                if amber2mqtt:
+                    a2m.publishAmberStateCurrent(client, amberData)
+                    a2m.publishAmberStatePeriods(client, amberData)
+                if amber5minForecast:
+                    amberData5 = al.getAmberData(amberApiToken, amberSiteId,15,0,5)
+                    a2m.publishAmberState5MinForecasts(client, amberData5)
+                if amber30minForecast:
+                    amberData30 = al.getAmberData(amberApiToken, amberSiteId,99,0,30)
+                    a2m.publishAmberState30MinForecasts(client, amberData30)
+                if amberUserForecast:
+                    amberData = al.getAmberData(amberApiToken, amberSiteId,288,0,0)
+                    a2m.publishAmberStateUserForecasts(client, amberData)
+                if amber288Forecast:
+                    amberData288 = al.create_288_5min_intervals(amberData5, amberData30)
+                    a2m.publishAmberState5MinExtendedForecasts(client, amberData288)
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to fetch Amber data: {e}")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred in amber5minPrice: {e}")
        
 
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
     global aemoPriceFirm
-    
-    if not aemoPriceFirm:
-        aemoData = aemo.getAemoCurrentData()
-        aemoPriceFirm = aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0])
-        if aemoPriceFirm:
-            if amber2mqtt:
-                a2m.publishAemoStateCurrent(client, aemoData)
+    try:
+        if not aemoPriceFirm:
+            aemoData = aemo.getAemoCurrentData()
+            aemoPriceFirm = aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0])
+            if aemoPriceFirm:
+                if amber2mqtt:
+                    a2m.publishAemoStateCurrent(client, aemoData)
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to fetch AEMO data: {e}")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred in aemo5MinCurrentPrice: {e}")
 
 if __name__ == '__main__':
     # creating the BackgroundScheduler object
