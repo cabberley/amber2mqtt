@@ -183,7 +183,7 @@ def publishAmberStateCurrent(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_CURRENT}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_CURRENT}: MQTT status {status}")
     # discoveryMsg = mm.amberDiscoveryMessage()
     # print(json.dumps(messageContent["attributes"]))
     for sensor in SENSOR_LIST_CURRENT:
@@ -193,7 +193,7 @@ def publishAmberStateCurrent(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
 
 def publishAmberStatePeriods(client, amberdata):
@@ -208,7 +208,7 @@ def publishAmberStatePeriods(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_PERIODS}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_PERIODS}: MQTT status {status}")
     for attributemsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
         # test = json.dumps(messageContent["attributes"][attributemsg])
@@ -220,7 +220,7 @@ def publishAmberStatePeriods(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
 def publishAmberState5MinForecasts(client, amberdata):
     """Publish the Amber state to MQTT for the 12 periods"""
@@ -234,7 +234,7 @@ def publishAmberState5MinForecasts(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_FORECASTS}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_FORECASTS}: MQTT status {status}")
     for attributemsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
         # test = json.dumps(messageContent["attributes"][attributemsg])
@@ -246,7 +246,7 @@ def publishAmberState5MinForecasts(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
 def publishAmberState5MinExtendedForecasts(client, amberdata):
     """Publish the Amber state to MQTT for the 12 periods"""
@@ -260,7 +260,7 @@ def publishAmberState5MinExtendedForecasts(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_FORECASTS}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_5MIN_EXTENDED_FORECASTS}: MQTT status {status}")
     for attributemsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
         # test = json.dumps(messageContent["attributes"][attributemsg])
@@ -272,7 +272,7 @@ def publishAmberState5MinExtendedForecasts(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
             
 def publishAmberState30MinForecasts(client, amberdata):
@@ -287,7 +287,7 @@ def publishAmberState30MinForecasts(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_30MIN_FORECASTS}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_30MIN_FORECASTS}: MQTT status {status}")
     for attributemsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
         # test = json.dumps(messageContent["attributes"][attributemsg])
@@ -299,7 +299,7 @@ def publishAmberState30MinForecasts(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
             
 def publishAmberStateUserForecasts(client, amberdata):
     """Publish the Amber state to MQTT for the 12 periods"""
@@ -313,7 +313,7 @@ def publishAmberStateUserForecasts(client, amberdata):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_USER_FORECASTS}")
+        raise ConnectionError(f"Failed to send message to topic {AMBER_STATE_TOPIC_USER_FORECASTS}: MQTT status {status}")
     for attributemsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributemsg}/attributes"
         # test = json.dumps(messageContent["attributes"][attributemsg])
@@ -325,7 +325,7 @@ def publishAmberStateUserForecasts(client, amberdata):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
 def publishAemoStateCurrent(client, aemoData):
     """Publish the AEMO state to MQTT"""
@@ -338,7 +338,7 @@ def publishAemoStateCurrent(client, aemoData):
     )
     status = result[0]
     if status != 0:
-        print(f"Failed to send message to topic {AMBER_STATE_TOPIC_CURRENT}")
+        raise ConnectionError(f"Failed to send message to topic {AEMO_STATE_TOPIC_CURRENT}: MQTT status {status}")
     for attributeMsg in messageContent["attributes"]:
         topic = f"{AMBER_MQTT_PREFIX}/{attributeMsg}/attributes"
         result = client.publish(
@@ -349,7 +349,7 @@ def publishAemoStateCurrent(client, aemoData):
         )
         status = result[0]
         if status != 0:
-            print(f"Failed to send message to topic {topic}")
+            raise ConnectionError(f"Failed to send message to topic {topic}: MQTT status {status}")
 
 
 # if __name__ == '__main__':

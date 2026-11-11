@@ -4,12 +4,14 @@ import amberelectric
 import amberelectric.models
 import amberelectric.api_client
 from amberelectric.rest import ApiException
+from urllib3.exceptions import HTTPError
 import time
 import utils as ut
 from datetime import timezone, timedelta
 
 AMBER_MAX_RETRIES = 3
 AMBER_RETRY_DELAY = 5
+AMBER_REQUEST_TIMEOUT = 30
 
 
 def getAmberData(accessToken, site_id, nextrecords, previous, resolution):
@@ -17,6 +19,7 @@ def getAmberData(accessToken, site_id, nextrecords, previous, resolution):
     configuration = amberelectric.Configuration(
         access_token = accessToken
     )
+    configuration.retries = 0
     
     intervals = None
     for attempt in range(AMBER_MAX_RETRIES):
@@ -26,20 +29,26 @@ def getAmberData(accessToken, site_id, nextrecords, previous, resolution):
             with amberelectric.ApiClient(configuration) as apiClient:
                 apiInstance = amberelectric.AmberApi(apiClient)
                 if resolution == 0:
-                    data = apiInstance.get_current_prices(site_id, next=nextrecords, previous=previous)
+                    data = apiInstance.get_current_prices(
+                        site_id, next=nextrecords, previous=previous,
+                        _request_timeout=AMBER_REQUEST_TIMEOUT,
+                    )
                 else:
-                    data = apiInstance.get_current_prices(site_id, next=nextrecords, previous=previous, resolution=resolution)
+                    data = apiInstance.get_current_prices(
+                        site_id, next=nextrecords, previous=previous, resolution=resolution,
+                        _request_timeout=AMBER_REQUEST_TIMEOUT,
+                    )
                 intervals = [interval.actual_instance for interval in data]
                 print("The response of AmberApi->get_current_prices: Success\n")
                 # Break on success
                 break
-        except ApiException as e:
+        except (ApiException, HTTPError) as e:
             if attempt < AMBER_MAX_RETRIES - 1:
                 print(f"Exception when calling AmberApi->get_current_prices (attempt {attempt + 1}): {e}. Retrying in {AMBER_RETRY_DELAY}s...")
                 time.sleep(AMBER_RETRY_DELAY)
             else:
                 print(f"Final exception when calling AmberApi->get_current_prices: {e}\n")
-                raise e
+                raise
 
     if intervals is None:
         raise RuntimeError("Failed to fetch Amber intervals after retries")

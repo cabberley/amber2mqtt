@@ -55,7 +55,8 @@ AMBER_USER_FORECASTS_AEMO_ENTITY = "Amber Billing Interval Forecasts AEMO Price"
 AMBER_5MIN_FORECASTS_EXTENDED_GENERAL_ENTITY = "Amber 5min Forecasts Extended General Price"
 AMBER_5MIN_FORECASTS_EXTENDED_FEED_IN_ENTITY = "Amber 5min Forecasts Extended Feed In Price"
 
-AEMO_NEM_SUMMARY_URI = "https://visualisations.aemo.com.au/aemo/apps/api/report/ELEC_NEM_SUMMARY"
+AEMO_CONFIG_URI = "https://dashboards.public.aemo.com.au/config.json"
+AEMO_NEM_SUMMARY_URI = "https://dashboards.public.aemo.com.au/NEM/v1/PWS/NEMDashboard/elecSummary"
 
 
 AEMO_5MIN_CURRENT_PRICE_NSW = "AEMO 5min Current Price NSW"

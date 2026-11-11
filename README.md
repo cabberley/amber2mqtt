@@ -70,3 +70,39 @@ Amber limits you currently to 50 requests per 5 minutes and if you exceed that y
 The AEMO minutes and seconds work the same way.
 
 You can adjust these according to your needs, but in doing so consider the timing of when these prices are published and that they are not available immediately at the start of the 5min intervals!
+
+### AEMO dashboard data
+
+AEMO polling uses the public dashboard API at `dashboards.public.aemo.com.au`,
+replacing the retired visualisations report endpoint. The dashboard API key is
+loaded automatically from its public configuration, cached, and refreshed once
+if authentication fails. No additional user configuration is required.
+
+Existing MQTT topics, sensor names, price units and attributes are unchanged.
+Settlement intervals are checked in fixed NEM market time (UTC+10), independent
+of the container timezone or daylight saving, including hour and day boundaries.
+Incomplete or invalid dashboard data raises an error rather than publishing
+partial prices.
+
+### Request failures and recovery
+
+Both polling jobs retain immediate retries with bounded waits. AEMO requests use
+a 30-second connect/read timeout and up to three retries; server `Retry-After`
+delays are capped at five seconds. Amber uses a 30-second request timeout, three
+attempts and five-second retry delays, with nested SDK retries disabled.
+These are request/inactivity timeouts, not a hard deadline for a complete poll.
+
+Failures are logged by the scheduler and retried at the next configured polling
+time, without restarting the container. A cycle is marked complete only after
+all enabled fetches and MQTT publishes have succeeded. Failed forecasts or MQTT
+enqueue errors leave the cycle eligible for retry; previously published retained
+messages may be sent again. MQTT remains QoS 0, so successful enqueueing does not
+guarantee delivery to the broker.
+
+Only one instance of each polling job runs at a time. Scheduled times that occur
+while that job is still running are skipped; polling resumes on the next
+configured time after it finishes. Completion is tracked per five-minute
+interval, so a slow previous-interval poll cannot suppress the next interval.
+
+Run the offline polling regression tests after installing the declared dependencies:
+`python -m unittest discover -s tests`

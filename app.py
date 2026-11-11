@@ -53,6 +53,8 @@ if amber288Forecast:
     amber30minForecast = True
 amberEstimatePrice = True
 aemoPriceFirm = False
+_amberCompletedInterval = None
+_aemoCompletedInterval = None
 
 
 def aemoResetPriceFirm():
@@ -69,13 +71,13 @@ def amberResetEstimatePrice():
 
 def amber5minPrice():
     """Get the current prices from the Amber API every 5 minutes"""
-    global amberEstimatePrice
-    if amberEstimatePrice:
+    global amberEstimatePrice, _amberCompletedInterval
+    interval = int(time.time() // 300)
+    if amberEstimatePrice or _amberCompletedInterval != interval:
         requestTime = dt.now()
         amberData = al.getAmberData(amberApiToken, amberSiteId,  13,5,5)
         responseTime = dt.now()
-        amberEstimatePrice = amberData["current"]["general"].estimate
-        if not amberEstimatePrice:
+        if not amberData["current"]["general"].estimate:
             print("Amber Current Period data confirmed")
             if amber2mqtt:
                 a2m.publishAmberStateCurrent(client, amberData)
@@ -92,18 +94,22 @@ def amber5minPrice():
             if amber288Forecast:
                 amberData288 = al.create_288_5min_intervals(amberData5, amberData30)
                 a2m.publishAmberState5MinExtendedForecasts(client, amberData288)
+            _amberCompletedInterval = interval
+            amberEstimatePrice = False
        
 
 def aemo5MinCurrentPrice():
     """Get the current price from AEMO every 5 minutes"""
-    global aemoPriceFirm
+    global aemoPriceFirm, _aemoCompletedInterval
     
-    if not aemoPriceFirm:
+    interval = int(time.time() // 300)
+    if not aemoPriceFirm or _aemoCompletedInterval != interval:
         aemoData = aemo.getAemoCurrentData()
-        aemoPriceFirm = aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0])
-        if aemoPriceFirm:
+        if aemo.checkAemoSettlementDate(aemoData["ELEC_NEM_SUMMARY"][0]):
             if amber2mqtt:
                 a2m.publishAemoStateCurrent(client, aemoData)
+            _aemoCompletedInterval = interval
+            aemoPriceFirm = True
 
 if __name__ == '__main__':
     # creating the BackgroundScheduler object
@@ -112,7 +118,7 @@ if __name__ == '__main__':
     if mqttDebug:
         mqttLogger = logging.getLogger('paho').setLevel(logging.DEBUG)
     scheduler = BackgroundScheduler()
-    scheduler.configure(job_defaults={'max_instances': 2})
+    scheduler.configure(job_defaults={'max_instances': 1})
     # setting the scheduled task
     client = a2m.mqttConnectBroker()
     #amber5minPrice()
